@@ -1,0 +1,23 @@
+# Ghostty Configuration
+
+# Theme: TokyoNight (default/night variant)
+theme = tokyonight
+
+# Font
+font-family = "JetBrains Mono"
+font-size = 13
+
+# Keybindings
+# Fix for Claude Code shift+enter
+keybind = shift+enter=text:\x1b\r
+
+# Window
+window-padding-x = 4
+window-padding-y = 4
+
+# Cursor
+cursor-style = block
+cursor-style-blink = false
+
+# Shell integration
+shell-integration = detect

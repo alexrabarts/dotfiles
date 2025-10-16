@@ -1,0 +1,8 @@
+# Starship prompt configuration
+
+# Disable cloud provider modules
+[gcloud]
+disabled = true
+
+[aws]
+disabled = true

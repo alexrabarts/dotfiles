@@ -1,0 +1,38 @@
+#!/bin/zsh
+# Smart PostgreSQL connection tool using ~/.pgpass
+
+if [ -z "$1" ]; then
+  echo "Usage: pg <database-name>"
+  echo ""
+  echo "Available databases:"
+  if [ -f ~/.pgpass ]; then
+    awk -F: '{printf "  %-20s (host: %s, user: %s)\n", $3, $1, $4}' ~/.pgpass | sort -u
+  fi
+  exit 1
+fi
+
+dbname="$1"
+
+# Check if .pgpass exists
+if [ ! -f ~/.pgpass ]; then
+  echo "~/.pgpass not found"
+  exit 1
+fi
+
+# Find matching line by database name (field 3)
+line=$(grep -E "^[^:]+:[^:]+:$dbname:" ~/.pgpass | head -1)
+
+if [ -n "$line" ]; then
+  host=$(echo "$line" | cut -d: -f1)
+  port=$(echo "$line" | cut -d: -f2)
+  db=$(echo "$line" | cut -d: -f3)
+  user=$(echo "$line" | cut -d: -f4)
+
+  exec psql -h "$host" -p "$port" -U "$user" -d "$db"
+else
+  echo "Database '$dbname' not found in ~/.pgpass"
+  echo ""
+  echo "Available databases:"
+  awk -F: '{print "  " $3}' ~/.pgpass | sort -u
+  exit 1
+fi

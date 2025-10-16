@@ -1,0 +1,44 @@
+#!/bin/zsh
+# Install a specific version of Go to ~/local/go
+# This follows the official installation instructions from https://go.dev/doc/install
+
+set -e
+
+version="$1"
+
+if [ -z "$version" ]; then
+  echo "Usage: go-install <version>"
+  echo "Example: go-install 1.21.5"
+  exit 1
+fi
+
+# Detect OS
+case "$(uname -s)" in
+  Linux)  dist="linux" ;;
+  Darwin) dist="darwin" ;;
+  *) echo "Unsupported OS"; exit 1 ;;
+esac
+
+# Detect architecture
+case "$(uname -m)" in
+  x86_64)   arch="amd64" ;;
+  arm64)    arch="arm64" ;;
+  *) echo "Unsupported architecture"; exit 1 ;;
+esac
+
+url="https://go.dev/dl/go${version}.${dist}-${arch}.tar.gz"
+tmpfile="/tmp/go${version}.${dist}-${arch}.tar.gz"
+
+echo "Downloading Go $version for $dist-$arch..."
+curl -fSL -o "$tmpfile" "$url" || { echo "Download failed"; exit 1; }
+
+echo "Removing old Go installation..."
+rm -rf "$HOME/local/go"
+
+echo "Extracting Go $version to $HOME/local..."
+mkdir -p "$HOME/local"
+tar -C "$HOME/local" -xzf "$tmpfile" || { echo "Extraction failed"; exit 1; }
+
+rm -f "$tmpfile"
+echo "Go $version installed successfully!"
+echo "Run: go version"
