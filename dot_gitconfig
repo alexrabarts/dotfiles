@@ -1,3 +1,7 @@
+[user]
+  name = Alex Rabarts
+  email = alexrabarts@gmail.com
+
 [alias]
   br = branch
   cm = commit
