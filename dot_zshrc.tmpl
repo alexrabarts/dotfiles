@@ -76,8 +76,6 @@ if [ -f "$HOME/.env" ]; then
   set +a
 fi
 
-. "$HOME/.atuin/bin/env"
-
 eval "$(atuin init zsh)"
 
 # opencode
@@ -89,4 +87,3 @@ __path_prepend "$HOME/.opencode/bin"
 # bun
 export BUN_INSTALL="$HOME/.bun"
 __path_prepend "$BUN_INSTALL/bin"
-
