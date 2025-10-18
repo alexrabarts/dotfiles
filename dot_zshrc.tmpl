@@ -39,7 +39,9 @@ __path_prepend() {
 __path_prepend "$HOME/bin"
 
 # Go
+{{ if eq .chezmoi.os "darwin" -}}
 export GOEXPERIMENT=jsonv2
+{{- end }}
 __path_prepend "$HOME/go/bin"        # For go install binaries
 __path_prepend "$HOME/local/go/bin"  # For go itself
 
