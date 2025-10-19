@@ -6,3 +6,10 @@ disabled = true
 
 [aws]
 disabled = true
+
+# Only show Go version in Go project directories
+[golang]
+detect_extensions = ["go"]
+detect_files = ["go.mod", "go.sum", "go.work"]
+detect_folders = []
+command_timeout = 2000
