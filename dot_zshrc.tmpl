@@ -43,10 +43,19 @@ __path_prepend "$HOME/bin"
 __path_prepend "$HOME/go/bin"        # For go install binaries
 __path_prepend "$HOME/local/go/bin"  # For go itself
 
-# The next line updates PATH for the Google Cloud SDK.
-if [ -f "$HOME/work/google-cloud-sdk/path.zsh.inc" ]; then . "$HOME/work/google-cloud-sdk/path.zsh.inc"; fi
+{{ if eq .chezmoi.os "darwin" -}}
+# Homebrew-based Google Cloud SDK (gcloud-cli formula)
+if command -v brew >/dev/null 2>&1; then
+  gcloud_prefix="$(brew --prefix)/share/google-cloud-sdk"
+  if [ -d "$gcloud_prefix/bin" ]; then
+    [ -f "$gcloud_prefix/path.zsh.inc" ] && . "$gcloud_prefix/path.zsh.inc"
+    [ -f "$gcloud_prefix/completion.zsh.inc" ] && . "$gcloud_prefix/completion.zsh.inc"
+  fi
+fi
+{{- end }}
 
-# The next line enables shell command completion for gcloud.
+# Fallback for manually installed Google Cloud SDK
+if [ -f "$HOME/work/google-cloud-sdk/path.zsh.inc" ]; then . "$HOME/work/google-cloud-sdk/path.zsh.inc"; fi
 if [ -f "$HOME/work/google-cloud-sdk/completion.zsh.inc" ]; then . "$HOME/work/google-cloud-sdk/completion.zsh.inc"; fi
 
 __path_prepend "/opt/homebrew/opt/libpq/bin"
