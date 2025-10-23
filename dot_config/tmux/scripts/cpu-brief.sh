@@ -21,4 +21,11 @@ fi
 integer=$((usage / 10))
 frac=$((usage % 10))
 
-printf '#[fg=#f9e2af]#[fg=#11111b,bg=#f9e2af] #[fg=#cdd6f4,bg=#313244] %d.%d%% #[fg=#313244]' "$integer" "$frac"
+bg_color="#a6e3a1"
+if (( usage >= 850 )); then
+  bg_color="#f38ba8"
+elif (( usage >= 600 )); then
+  bg_color="#f9e2af"
+fi
+
+printf '#[fg=%s]#[fg=#11111b,bg=%s] #[fg=#cdd6f4,bg=#313244] %d.%d%% #[fg=#313244]' "$bg_color" "$bg_color" "$integer" "$frac"
