@@ -1,11 +1,40 @@
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
 # Initialize completion system first
 autoload -Uz compinit && compinit
 
-eval "$(starship init zsh)"
+# Zinit and plugins dir
+ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
+if [ ! -d "$ZINIT_HOME" ]; then
+  mkdir -p "$(dirname $ZINIT_HOME)"
+  git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
+fi
+source "${ZINIT_HOME}/zinit.zsh"
+
+#eval "$(starship init zsh)"
+eval "$(zoxide init --cmd cd zsh)"
+zinit ice depth=1; zinit light romkatv/powerlevel10k
+zinit light zsh-users/zsh-syntax-highlighting
+zinit light zsh-users/zsh-completions
+autoload -U compinit && compinit
+
+# Override syntax highlighting colors - use darker amber for invalid commands
+ZSH_HIGHLIGHT_STYLES[unknown-token]='fg=130'  # dark amber for invalid/unknown commands
+
+# Colored autocompletion
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 
 {{ if eq .chezmoi.os "darwin" -}}
 alias tailscale="/Applications/Tailscale.app/Contents/MacOS/Tailscale"
 {{- end }}
+
+alias ls='ls --color'
+alias ca='chezmoi apply'
 
 # Chezmoi
 alias cz="chezmoi"
@@ -13,6 +42,9 @@ alias czap="chezmoi apply && exec zsh"
 alias cze="chezmoi edit"
 alias czd="chezmoi diff"
 alias ta="tmux attach"
+
+# Emacs-style keybindings
+bindkey -e
 
 # Editor configuration
 if command -v nvim >/dev/null 2>&1; then
@@ -38,6 +70,8 @@ __path_prepend() {
 
 # Local bin directory for utility scripts
 __path_prepend "$HOME/bin"
+
+__path_prepend "$HOME/.local/bin"
 
 # Go
 __path_prepend "$HOME/go/bin"        # For go install binaries
@@ -93,5 +127,5 @@ __path_prepend "$HOME/.opencode/bin"
 export BUN_INSTALL="$HOME/.bun"
 __path_prepend "$BUN_INSTALL/bin"
 
-# claude
-alias claude="$HOME/.claude/local/claude"
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
