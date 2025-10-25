@@ -1,0 +1,15 @@
+#!/bin/bash
+TIMEOUT=15        # seconds of inactivity
+BRIGHT=2
+OFF=0
+
+while true; do
+  idle_ms=$(xprintidle)
+  idle=$((idle_ms / 1000))
+  if (( idle < TIMEOUT )); then
+    sudo /usr/local/bin/set-kbd-brightness $BRIGHT
+  else
+    sudo /usr/local/bin/set-kbd-brightness $OFF
+  fi
+  sleep 1
+done

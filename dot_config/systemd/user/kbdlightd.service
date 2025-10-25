@@ -1,0 +1,9 @@
+[Unit]
+Description=Auto keyboard backlight
+
+[Service]
+ExecStart=/usr/local/bin/kbdlightd
+Restart=always
+
+[Install]
+WantedBy=default.target
