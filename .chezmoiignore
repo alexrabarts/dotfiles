@@ -1,0 +1,27 @@
+# Tmux plugins are managed by TPM, not tracked in dotfiles
+.config/tmux/plugins/
+
+{{- if ne .chezmoi.os "linux" }}
+# Hyprland compositor (Linux desktop only)
+.config/hypr/
+
+# systemd user services (Linux only)
+.config/systemd/
+
+# Linux-specific scripts
+bin/kbdlightd
+bin/set-kbd-brightness
+bin/compact_workspaces.sh
+
+# System configuration files (require manual installation)
+etc/logind.conf
+
+# Arch Linux package list
+.config/pkglist.txt
+{{- end }}
+
+{{- if eq .chezmoi.os "linux" }}
+# System configuration files are tracked but require manual installation
+# See SYSTEM_FILES.md for installation instructions
+etc/
+{{- end }}

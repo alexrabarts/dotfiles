@@ -1,0 +1,11 @@
+[Unit]
+Description=Turn display off/on when lid closes/opens
+
+[Service]
+Environment="XDG_RUNTIME_DIR=/run/user/%U"
+Environment="WAYLAND_DISPLAY=wayland-1"
+ExecStart=/bin/sh -c 'acpi_listen | while read -r e; do case "$e" in *button/lid*) hyprctl dispatch dpms toggle;; esac; done'
+
+[Install]
+WantedBy=default.target
+

@@ -1,0 +1,4 @@
+#!/bin/sh
+# Reinstall all user packages
+sudo pacman -S --needed - < "$HOME/.config/pkglist.txt"
+
