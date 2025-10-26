@@ -115,6 +115,9 @@ if [ -f "$HOME/.env" ]; then
   set +a
 fi
 
+# Set default browser
+xdg-settings set default-web-browser chromium.desktop 2>/dev/null
+
 eval "$(atuin init zsh)"
 
 # opencode
