@@ -4,6 +4,7 @@ After=network-online.target
 
 [Service]
 Type=simple
+Environment="OLLAMA_HOST=0.0.0.0:11434"
 ExecStart=/usr/bin/ollama serve
 Restart=always
 RestartSec=3
