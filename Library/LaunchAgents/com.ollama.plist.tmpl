@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.ollama</string>
+    <key>ProgramArguments</key>
+    <array>
+{{- if eq .chezmoi.arch "arm64" }}
+        <string>/opt/homebrew/bin/ollama</string>
+{{- else }}
+        <string>/usr/local/bin/ollama</string>
+{{- end }}
+        <string>serve</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>/tmp/ollama.out.log</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/ollama.err.log</string>
+</dict>
+</plist>

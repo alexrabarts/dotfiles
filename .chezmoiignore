@@ -24,4 +24,7 @@ etc/logind.conf
 # System configuration files are tracked but require manual installation
 # See SYSTEM_FILES.md for installation instructions
 etc/
+
+# macOS-specific files (launchd services)
+Library/
 {{- end }}
