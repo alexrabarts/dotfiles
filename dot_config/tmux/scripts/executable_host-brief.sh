@@ -30,4 +30,4 @@ else
   esac
 fi
 
-printf '#[fg=%s]#[fg=#11111b,bg=%s]%s #[fg=#cdd6f4,bg=#313244] %s #[fg=#313244]' "$bg_color" "$bg_color" "$icon" "$hostname"
+printf '#[fg=%s]#[fg=#11111b,bg=%s]%s #[fg=#cdd6f4,bg=#313244] %s#[fg=#313244]' "$bg_color" "$bg_color" "$icon" "$hostname"
