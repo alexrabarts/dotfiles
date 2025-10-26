@@ -1,0 +1,14 @@
+# Focus Agent Configuration (managed by chezmoi)
+
+# Remote connection settings (for TUI client)
+remote:
+  # Remote API server URL via Tailscale
+  url: "http://alex-hetzner:8081"
+
+  # Authentication key (loaded from encrypted ~/.env)
+  auth_key: "{{ env "FOCUS_AGENT_AUTH_KEY" }}"
+
+# TUI (Terminal User Interface) settings
+tui:
+  # Auto-refresh interval in seconds (0 to disable)
+  auto_refresh_seconds: 30
