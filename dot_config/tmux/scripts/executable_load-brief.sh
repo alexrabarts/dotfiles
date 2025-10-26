@@ -12,7 +12,7 @@ if [[ -z "${cores:-}" || "$cores" -le 0 ]]; then
 fi
 
 if [[ -r /proc/loadavg ]]; then
-  load=$(awk '{printf "%.2f", $1}' /proc/loadavg 2>/dev/null)
+  load=$(awk '{printf "%.1f", $1}' /proc/loadavg 2>/dev/null)
 else
   load="?"
 fi

@@ -18,8 +18,8 @@ if (( diff_total > 0 )); then
   usage=$(( (diff_total - diff_idle) * 1000 / diff_total ))
 fi
 
-integer=$((usage / 10))
-frac=$((usage % 10))
+# Round to nearest integer percentage
+rounded=$(( (usage + 5) / 10 ))
 
 bg_color="#a6e3a1"
 if (( usage >= 850 )); then
@@ -28,4 +28,4 @@ elif (( usage >= 600 )); then
   bg_color="#f9e2af"
 fi
 
-printf '#[fg=%s]#[fg=#11111b,bg=%s] #[fg=#cdd6f4,bg=#313244] %d.%d%% #[fg=#313244]' "$bg_color" "$bg_color" "$integer" "$frac"
+printf '#[fg=%s]#[fg=#11111b,bg=%s] #[fg=#cdd6f4,bg=#313244] %d%% #[fg=#313244]' "$bg_color" "$bg_color" "$rounded"
