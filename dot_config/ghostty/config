@@ -11,6 +11,9 @@ font-size = 13
 # Fix for Claude Code shift+enter
 keybind = shift+enter=text:\x1b\r
 
+# macOS: Use Option key as Alt/Meta for terminal keybindings
+macos-option-as-alt = true
+
 # Window
 window-padding-x = 4
 window-padding-y = 4
