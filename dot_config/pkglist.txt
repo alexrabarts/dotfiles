@@ -81,6 +81,7 @@ inxi
 iwd
 jq
 kdenlive
+keyd
 kvantum-qt5
 lazydocker
 lazygit
