@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=Trading Agent
+Comment=Trading Agent
+Exec=omarchy-launch-webapp https://trading.rabarts.com/dashboard
+Terminal=false
+Type=Application
+Icon=/home/alex/.local/share/applications/icons/Trading Agent.png
+StartupNotify=true

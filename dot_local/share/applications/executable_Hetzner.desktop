@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=Hetzner
+Comment=Hetzner
+Exec=omarchy-launch-webapp https://console.hetzner.com/projects/12179990/servers/111009835/overview
+Terminal=false
+Type=Application
+Icon=/home/alex/.local/share/applications/icons/Hetzner.png
+StartupNotify=true

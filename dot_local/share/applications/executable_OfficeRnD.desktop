@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=OfficeRnD
+Comment=OfficeRnD
+Exec=omarchy-launch-webapp https://app.officernd.com/admin/techspace-uk/home
+Terminal=false
+Type=Application
+Icon=/home/alex/.local/share/applications/icons/OfficeRnD.png
+StartupNotify=true

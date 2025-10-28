@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=Google Chat
+Comment=Google Chat
+Exec=omarchy-launch-webapp https://mail.google.com/chat/u/1/#chat/home
+Terminal=false
+Type=Application
+Icon=/home/alex/.local/share/applications/icons/Google Chat.png
+StartupNotify=true

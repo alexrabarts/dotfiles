@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=Front
+Comment=Front
+Exec=omarchy-launch-webapp https://app.frontapp.com/inboxes/teammates/10056078/inbox/all/
+Terminal=false
+Type=Application
+Icon=/home/alex/.local/share/applications/icons/Front.png
+StartupNotify=true
