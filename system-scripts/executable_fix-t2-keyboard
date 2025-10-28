@@ -1,0 +1,32 @@
+#!/bin/sh
+# Systemd sleep hook to fix T2 keyboard delay on resume
+# This script unbinds/rebinds the keyboard USB device to force immediate reinitialization
+# Managed by chezmoi - do not edit directly in /etc/systemd/system-sleep/
+
+# Debug: log all invocations
+logger -t fix-t2-keyboard "Script called with args: $1 $2"
+
+case "$1" in
+  post)
+    # After resume, find and rebind the keyboard device
+    # The keyboard is part of the BCE virtual HCI controller
+    for device in /sys/bus/usb/devices/*/product; do
+      if grep -q "Apple Internal Keyboard" "$device" 2>/dev/null; then
+        device_path=$(dirname "$device")
+        device_name=$(basename "$device_path")
+
+        # Unbind the device
+        echo "$device_name" > /sys/bus/usb/drivers/usb/unbind 2>/dev/null || true
+
+        # Wait a moment
+        sleep 0.5
+
+        # Rebind the device
+        echo "$device_name" > /sys/bus/usb/drivers/usb/bind 2>/dev/null || true
+
+        logger -t fix-t2-keyboard "Rebound keyboard device $device_name"
+        break
+      fi
+    done
+    ;;
+esac
