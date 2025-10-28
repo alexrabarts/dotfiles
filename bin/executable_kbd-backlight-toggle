@@ -1,0 +1,27 @@
+#!/bin/bash
+# Toggle keyboard backlight on/off
+
+# Auto-detect keyboard backlight path
+if [ -e /sys/class/leds/apple::kbd_backlight/brightness ]; then
+  CURRENT=$(cat /sys/class/leds/apple::kbd_backlight/brightness)
+  MAX=$(cat /sys/class/leds/apple::kbd_backlight/max_brightness)
+  if (( CURRENT == 0 )); then
+    # Turn on to 50%
+    NEW=$((MAX / 2))
+  else
+    # Turn off
+    NEW=0
+  fi
+  echo "$NEW" | sudo tee /sys/class/leds/apple::kbd_backlight/brightness > /dev/null
+elif [ -e /sys/class/leds/dell::kbd_backlight/brightness ]; then
+  CURRENT=$(cat /sys/class/leds/dell::kbd_backlight/brightness)
+  MAX=$(cat /sys/class/leds/dell::kbd_backlight/max_brightness)
+  if (( CURRENT == 0 )); then
+    # Turn on to max
+    NEW=$MAX
+  else
+    # Turn off
+    NEW=0
+  fi
+  echo "$NEW" | sudo tee /sys/class/leds/dell::kbd_backlight/brightness > /dev/null
+fi

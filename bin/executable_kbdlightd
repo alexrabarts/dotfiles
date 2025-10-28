@@ -1,7 +1,18 @@
 #!/bin/bash
 TIMEOUT=15        # seconds of inactivity
-BRIGHT=2
-OFF=0
+
+# Auto-detect keyboard backlight path and appropriate brightness levels
+if [ -e /sys/class/leds/apple::kbd_backlight/brightness ]; then
+  MAX_BRIGHTNESS=$(cat /sys/class/leds/apple::kbd_backlight/max_brightness)
+  BRIGHT=$((MAX_BRIGHTNESS / 2))  # 50% brightness for Mac
+  OFF=0
+elif [ -e /sys/class/leds/dell::kbd_backlight/brightness ]; then
+  BRIGHT=2  # Dell uses 0-2 scale
+  OFF=0
+else
+  echo "Error: No keyboard backlight device found" >&2
+  exit 1
+fi
 
 while true; do
   idle_ms=$(xprintidle)

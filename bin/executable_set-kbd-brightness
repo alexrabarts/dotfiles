@@ -1,2 +1,12 @@
 #!/bin/bash
-echo "$1" > /sys/class/leds/dell::kbd_backlight/brightness
+# Auto-detect keyboard backlight path based on hardware
+if [ -e /sys/class/leds/apple::kbd_backlight/brightness ]; then
+  KBD_BACKLIGHT_PATH="/sys/class/leds/apple::kbd_backlight/brightness"
+elif [ -e /sys/class/leds/dell::kbd_backlight/brightness ]; then
+  KBD_BACKLIGHT_PATH="/sys/class/leds/dell::kbd_backlight/brightness"
+else
+  echo "Error: No keyboard backlight device found" >&2
+  exit 1
+fi
+
+echo "$1" > "$KBD_BACKLIGHT_PATH"

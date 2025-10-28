@@ -63,11 +63,30 @@ unbind = SHIFT, XF86MonBrightnessUp
 unbind = , XF86MonBrightnessDown
 unbind = SHIFT, XF86MonBrightnessDown
 
-# Dell laptop brightness keys (F6 = down, F7 = up)
-bindd = , XF86MonBrightnessUp, Brightness up, exec, brightnessctl set 5%+
-bindd = , XF86MonBrightnessDown, Brightness down, exec, brightnessctl set 5%-
-bindd = , F7, Brightness up, exec, brightnessctl set 5%+
-bindd = , F6, Brightness down, exec, brightnessctl set 5%-
+{{- $isMacHardware := or (contains "MacBook" (output "cat" "/sys/class/dmi/id/product_name" | trim)) (contains "Mac" (output "cat" "/sys/class/dmi/id/sys_vendor" | trim)) }}
+# Hardware-specific brightness and keyboard backlight controls
+{{- if $isMacHardware }}
+# Mac laptop keys
+# Screen brightness
+bindd = , XF86MonBrightnessUp, Screen brightness up, exec, brightnessctl set 5%+
+bindd = , XF86MonBrightnessDown, Screen brightness down, exec, brightnessctl set 5%-
+bindd = , F2, Screen brightness up, exec, brightnessctl set 5%+
+bindd = , F1, Screen brightness down, exec, brightnessctl set 5%-
+
+# Keyboard backlight
+bindd = , F6, Keyboard backlight up, exec, /usr/local/bin/kbd-backlight-up
+bindd = , F5, Keyboard backlight down, exec, /usr/local/bin/kbd-backlight-down
+{{- else }}
+# Dell laptop keys
+# Screen brightness (F6 = down, F7 = up)
+bindd = , XF86MonBrightnessUp, Screen brightness up, exec, brightnessctl set 5%+
+bindd = , XF86MonBrightnessDown, Screen brightness down, exec, brightnessctl set 5%-
+bindd = , F7, Screen brightness up, exec, brightnessctl set 5%+
+bindd = , F6, Screen brightness down, exec, brightnessctl set 5%-
+
+# Keyboard backlight toggle
+bindd = , F5, Keyboard backlight toggle, exec, /usr/local/bin/kbd-backlight-toggle
+{{- end }}
 
 # Overwrite existing bindings, like putting Omarchy Menu on Super + Space
 # unbind = SUPER, SPACE
