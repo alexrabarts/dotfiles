@@ -3,10 +3,15 @@ $terminal = uwsm-app -- alacritty
 
 $browser = omarchy-launch-browser
 
-# Override window close keybinding - map Super+W to Ctrl+W for tab closing
+# Override window management keybindings
 unbind = SUPER, W
 bindd = SUPER, W, Close tab (Ctrl+W), exec, ~/bin/send-ctrl-w
 bindd = SUPER, Q, Close window, killactive,
+
+# Rebind toggle floating from Super+T to Super+D, use Super+T for new tab
+unbind = SUPER, T
+bindd = SUPER, D, Toggle floating, togglefloating,
+bindd = SUPER, T, New tab (Ctrl+T), exec, ~/bin/send-ctrl-t
 
 # Unbind default Omarchy workspace navigation on arrow keys
 unbind = SUPER, LEFT

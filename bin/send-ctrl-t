@@ -1,0 +1,4 @@
+#!/bin/bash
+# Send Ctrl+T keystroke for new tab
+sleep 0.05
+wtype -M ctrl -k t
