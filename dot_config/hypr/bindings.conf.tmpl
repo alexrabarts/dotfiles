@@ -3,7 +3,7 @@ $terminal = uwsm-app -- alacritty
 
 $browser = omarchy-launch-browser
 
-# Override window close keybinding
+# Override window close keybinding - map Super+W to Ctrl+W for tab closing
 unbind = SUPER, W
 bindd = SUPER, W, Close tab (Ctrl+W), exec, wtype -M ctrl -k w
 bindd = SUPER, Q, Close window, killactive,
