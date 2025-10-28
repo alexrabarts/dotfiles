@@ -8,25 +8,42 @@ logger -t fix-t2-keyboard "Script called with args: $1 $2"
 
 case "$1" in
   post)
-    # After resume, find and rebind the keyboard device
+    # After resume, find and rebind the keyboard device in background
     # The keyboard is part of the BCE virtual HCI controller
-    for device in /sys/bus/usb/devices/*/product; do
-      if grep -q "Apple Internal Keyboard" "$device" 2>/dev/null; then
-        device_path=$(dirname "$device")
-        device_name=$(basename "$device_path")
+    # Run in background with timeout to prevent blocking suspend/resume
+    (
+      # Set a timeout for the entire operation
+      exec 2>/dev/null
 
-        # Unbind the device
-        echo "$device_name" > /sys/bus/usb/drivers/usb/unbind 2>/dev/null || true
+      for device in /sys/bus/usb/devices/*/product; do
+        if timeout 1 grep -q "Apple Internal Keyboard" "$device" 2>/dev/null; then
+          device_path=$(dirname "$device")
+          device_name=$(basename "$device_path")
 
-        # Wait a moment
-        sleep 0.5
+          logger -t fix-t2-keyboard "Found keyboard device $device_name, rebinding..."
 
-        # Rebind the device
-        echo "$device_name" > /sys/bus/usb/drivers/usb/bind 2>/dev/null || true
+          # Unbind with timeout - if this hangs, the timeout will kill it
+          if timeout 2 sh -c "echo '$device_name' > /sys/bus/usb/drivers/usb/unbind" 2>/dev/null; then
+            logger -t fix-t2-keyboard "Unbound $device_name"
+          else
+            logger -t fix-t2-keyboard "Unbind timed out or failed for $device_name"
+          fi
 
-        logger -t fix-t2-keyboard "Rebound keyboard device $device_name"
-        break
-      fi
-    done
+          # Brief delay
+          sleep 0.5
+
+          # Rebind with timeout
+          if timeout 2 sh -c "echo '$device_name' > /sys/bus/usb/drivers/usb/bind" 2>/dev/null; then
+            logger -t fix-t2-keyboard "Rebound keyboard device $device_name successfully"
+          else
+            logger -t fix-t2-keyboard "Rebind timed out or failed for $device_name"
+          fi
+
+          break
+        fi
+      done
+    ) &
+
+    # Don't wait for background job - exit immediately to not block systemd
     ;;
 esac

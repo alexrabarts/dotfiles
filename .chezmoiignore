@@ -28,3 +28,4 @@ etc/
 # macOS-specific files (launchd services)
 Library/
 {{- end }}
+create-mtp-udev-rule.sh
