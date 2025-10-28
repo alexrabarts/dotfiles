@@ -15,7 +15,7 @@ else
 
   # Select icon based on hostname
   case "$hostname" in
-    alex-om|alex-mbp)
+    alex-om|alex-mbp|alex-mba)
       icon="󰌢"  # Network/laptop icon
       ;;
     alex-mm)
