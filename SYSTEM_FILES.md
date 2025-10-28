@@ -106,3 +106,20 @@ my-app/
 **Installation:** Run `make install-logrotate` from the application repo.
 
 See individual application repositories for their specific system configuration needs (e.g., `swatchlab`, `property-bot`).
+
+## keyd Keyboard Remapping
+
+**File:** `etc/keyd/default.conf` → `/etc/keyd/default.conf`
+
+**Purpose:** Provides kernel-level remappings (Super → Ctrl shortcuts, Alt+Shift tab switching) used across Hyprland and apps.
+
+**Installation:**
+
+```bash
+sudo mkdir -p /etc/keyd
+sudo cp ~/.local/share/chezmoi/etc/keyd/default.conf /etc/keyd/default.conf
+sudo chmod 644 /etc/keyd/default.conf
+sudo systemctl restart keyd
+```
+
+The `run_once_enable-keyd.sh` script performs the same steps automatically when chezmoi is applied on a new machine.

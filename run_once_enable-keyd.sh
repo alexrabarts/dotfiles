@@ -11,7 +11,7 @@ fi
 # Copy keyd configuration to /etc/keyd/
 echo "Installing keyd configuration..."
 sudo mkdir -p /etc/keyd
-sudo cp -f ~/.local/share/chezmoi/keyd-config/default.conf /etc/keyd/default.conf
+sudo cp -f ~/.local/share/chezmoi/etc/keyd/default.conf /etc/keyd/default.conf
 sudo chmod 644 /etc/keyd/default.conf
 
 # Check if keyd service is already enabled
