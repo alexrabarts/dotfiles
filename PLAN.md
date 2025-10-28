@@ -1,138 +1,81 @@
 # Dotfiles Setup Plan
 
-## Current Work: ydotool Setup for macOS-style Keyboard Shortcuts
+## ✅ COMPLETED: macOS-style Super+T/W Keyboard Shortcuts
 
 ### Goal
-Enable Super+W (close tab) and Super+T (new tab) shortcuts system-wide by using ydotool to inject Ctrl+W and Ctrl+T keystrokes.
+Enable Super+W (close tab) and Super+T (new tab) shortcuts system-wide, working exactly like macOS.
 
-### Why ydotool?
-- Initial attempt with `wtype` was unreliable - Super+W worked but Super+T was flaky
-- `keyd` for Alt+arrow navigation interfered with wtype and broke Super+Alt+Space (Omarchy menu)
-- ydotool works at a lower level and should be more reliable
+### Solution: keyd
 
-### Current Status
-- ✅ Scripts created: `bin/send-ctrl-w` and `bin/send-ctrl-t` using ydotool
-- ✅ Hyprland bindings configured: Super+W and Super+T
-- ✅ Super+D remapped to toggle floating (was Super+T)
-- ✅ ydotool package added to pkglist.txt
-- ✅ Permission setup script created: `run_once_setup-ydotool-permissions.sh`
-- ✅ Service enablement script created: `run_once_enable-ydotool.sh`
-- ⚠️  keyd removed from package list but config files still in repo
-- ❌ ydotool permissions not yet configured
-- ❌ User not in input group yet
-- ❌ ydotoold service not running
+After trying multiple approaches (wtype, ydotool with various timing hacks), the proper solution was **keyd** with the correct configuration syntax.
 
-### Next Steps (After Restart)
+**Why keyd works**: It operates at the kernel level, remapping keys BEFORE applications see them. When you press Super+T, applications only receive Ctrl+T - they never see SUPER at all.
 
-1. **Install ydotool** (if not already installed):
-   ```bash
-   cd ~/repos/github.com/alexrabarts/dotfiles
-   sudo pacman -S ydotool
-   ```
+### Final Configuration
 
-2. **Setup permissions**:
-   ```bash
-   bash run_once_setup-ydotool-permissions.sh
-   ```
+**keyd config** (`/etc/keyd/default.conf`):
+```
+[ids]
+*
 
-   This script will:
-   - Create udev rule for /dev/uinput access
-   - Add your user to the `input` group
-   - Reload udev rules
-   - Load uinput kernel module
-   - Configure uinput to load on boot
+[meta]
+# When Super is held, remap these keys
+t = C-t
+w = C-w
+```
 
-3. **Log out and log back in** (required for group changes to take effect)
+**Key insight**: The `[meta]` layer (not `meta.t` in `[main]`) is the correct syntax for remapping Super+key combinations.
 
-4. **After logging back in, start ydotool service**:
-   ```bash
-   systemctl --user enable --now ydotool
-   systemctl --user status ydotool  # Verify it's running
-   ```
+**Hyprland config** (`dot_config/hypr/bindings.conf.tmpl`):
+```
+# Unbind Super+W and Super+T - keyd handles them at kernel level
+unbind = SUPER, W
+unbind = SUPER, T
+bindd = SUPER, Q, Close window, killactive,
+bindd = SUPER, D, Toggle floating, togglefloating,
+```
 
-5. **Copy scripts** (if not already applied by chezmoi):
-   ```bash
-   cd ~/repos/github.com/alexrabarts/dotfiles
-   cp bin/send-ctrl-w ~/bin/send-ctrl-w
-   cp bin/send-ctrl-t ~/bin/send-ctrl-t
-   chmod +x ~/bin/send-ctrl-*
-   ```
+### What Didn't Work
 
-6. **Test the shortcuts**:
-   - Open a browser
-   - Press Super+T → should open new tab
-   - Press Super+W → should close tab
-   - Test Super+Alt+Space → should open Omarchy settings menu (not app launcher)
+1. **wtype**: Unreliable - Super+W worked but Super+T was flaky
+2. **ydotool with `bindd` (bind on press)**: SUPER still held down when ydotool sent Ctrl+T, creating SUPER+Ctrl+T conflict
+3. **ydotool with `bindr` (bind on release)**: Only worked if you released SUPER very quickly - not natural UX
+4. **ydotool with delays**: Hacky and still unreliable
+5. **keyd with wrong syntax**: `meta.t = C-t` in `[main]` section didn't work - needed `[meta]` layer instead
 
-7. **If working, commit and push**:
-   ```bash
-   git add bin/send-ctrl-* dot_config/pkglist.txt run_once_*.sh dot_config/hypr/bindings.conf.tmpl
-   git commit -m "Replace wtype with ydotool for reliable Super+W/T shortcuts"
-   git push
-   ```
+### Files Modified
 
-### Files Modified/Created
-
-**Scripts:**
-- `bin/send-ctrl-w` - Uses ydotool to send Ctrl+W
-- `bin/send-ctrl-t` - Uses ydotool to send Ctrl+T
+**keyd:**
+- `keyd-config/default.conf` - Simple 2-line remapping in `[meta]` layer
+- `run_once_enable-keyd.sh` - Auto-installs config to `/etc/keyd/` and enables service
 
 **Hyprland:**
-- `dot_config/hypr/bindings.conf.tmpl` - Super+W, Super+T, Super+D bindings
-
-**Setup:**
-- `run_once_setup-ydotool-permissions.sh` - Setup udev rules and permissions
-- `run_once_enable-ydotool.sh` - Enable ydotool service (not needed if manual steps followed)
+- `dot_config/hypr/bindings.conf.tmpl` - Unbind Super+W/T, keep Super+Q and Super+D
 
 **Packages:**
-- Added: ydotool
-- Removed: wtype (can be removed once ydotool is confirmed working)
-- Removed: keyd (was interfering with shortcuts)
+- `dot_config/pkglist.txt` - Added `keyd` back, removed `ydotool`
 
-### Cleanup TODO (After ydotool is confirmed working)
+### Setup on New Machine
 
-1. Remove keyd config files:
-   ```bash
-   git rm -r keyd-config/ run_once_enable-keyd.sh
-   ```
+The `run_once_enable-keyd.sh` script handles everything automatically:
+1. Installs keyd config to `/etc/keyd/default.conf`
+2. Enables and starts keyd service
+3. No manual configuration needed
 
-2. Remove wtype from package list (replace with ydotool):
-   ```bash
-   # Edit dot_config/pkglist.txt - remove wtype line
-   ```
+### Key Bindings
 
-3. Update CLAUDE.md if needed to document the Super+W/T shortcuts
-
-### Troubleshooting
-
-**If ydotool service fails to start:**
-- Check logs: `journalctl --user -u ydotool -n 50`
-- Verify uinput device exists: `ls -la /dev/uinput`
-- Verify you're in input group: `groups | grep input`
-- Check udev rule: `cat /etc/udev/rules.d/80-uinput.rules`
-
-**If shortcuts don't work:**
-- Test ydotool directly: `ydotool key 29:1 20:1 20:0 29:0` (should send Ctrl+T)
-- Check socket exists: `ls -la /run/user/1000/.ydotool_socket`
-- Test scripts manually: `~/bin/send-ctrl-t`
-
-**If Super+Alt+Space doesn't open Omarchy menu:**
-- keyd might still be running - disable it: `sudo systemctl stop keyd && sudo systemctl disable keyd`
-
-### Alternative Approach (If ydotool still doesn't work)
-
-Give up on system-wide Super+W/T shortcuts and just use standard Linux shortcuts:
-- Use Ctrl+W for close tab
-- Use Ctrl+T for new tab
-- Remove the custom Hyprland bindings
-- This is what most Linux users do and it's 100% reliable
-
-### Key Bindings Summary
-
-After setup completes:
-- **Super+W** → Close tab (Ctrl+W)
-- **Super+T** → New tab (Ctrl+T)
-- **Super+Q** → Close window (killactive)
+- **Super+T** → New tab (remapped to Ctrl+T by keyd)
+- **Super+W** → Close tab (remapped to Ctrl+W by keyd)
+- **Super+Q** → Close window (Hyprland native)
 - **Super+D** → Toggle floating (moved from Super+T)
 - **Super+Alt+Space** → Omarchy settings menu
 - **Super+Space** → App launcher
+
+All other Super key bindings pass through normally - keyd only touches T and W.
+
+### Lessons Learned
+
+- Userspace keystroke injection tools (wtype, ydotool) don't work well for modifier key remapping because the physical modifier is still pressed when synthetic keys are sent
+- Kernel-level remapping (keyd, kmonad) is the proper solution for this use case
+- keyd syntax is specific: use `[modifier]` layers, not `modifier.key` in `[main]`
+- Always check the official documentation for syntax examples - web search results can be outdated

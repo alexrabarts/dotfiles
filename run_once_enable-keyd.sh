@@ -31,5 +31,5 @@ else
     sudo systemctl start keyd
 fi
 
-echo "keyd is now active. Your Alt+arrow text navigation shortcuts are ready!"
-echo "Note: Using Alt instead of Super to avoid conflicts with Hyprland keybindings."
+echo "keyd is now active. Your Super+T/W shortcuts will work like macOS!"
+echo "Super+T opens new tab, Super+W closes tab - remapped to Ctrl+T/W at kernel level."

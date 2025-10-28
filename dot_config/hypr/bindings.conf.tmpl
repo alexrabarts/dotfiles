@@ -4,14 +4,13 @@ $terminal = uwsm-app -- alacritty
 $browser = omarchy-launch-browser
 
 # Override window management keybindings
+# Unbind Super+W and Super+T - keyd will remap them to Ctrl+W/T at kernel level
 unbind = SUPER, W
-bindd = SUPER, W, Close tab (Ctrl+W), exec, ~/bin/send-ctrl-w
+unbind = SUPER, T
 bindd = SUPER, Q, Close window, killactive,
 
-# Rebind toggle floating from Super+T to Super+D, use Super+T for new tab
-unbind = SUPER, T
+# Rebind toggle floating from Super+T to Super+D
 bindd = SUPER, D, Toggle floating, togglefloating,
-bindd = SUPER, T, New tab (Ctrl+T), exec, ~/bin/send-ctrl-t
 
 # Unbind default Omarchy workspace navigation on arrow keys
 unbind = SUPER, LEFT
