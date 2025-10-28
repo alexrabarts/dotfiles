@@ -18,10 +18,14 @@ This is a **chezmoi** dotfiles repository that manages shell configuration and s
 
 ### Setup (New Machine)
 ```bash
+make init-chezmoi         # Initialize chezmoi to use this repo as source (run once)
 make install              # Full setup: checks prerequisites, sets up age key, applies dotfiles
+make install-packages     # Install all packages (Linux: pacman, macOS: Homebrew)
 make setup-age            # Setup age encryption only
-make check-prerequisites  # Verify chezmoi and age are installed
+make check-prerequisites  # Verify chezmoi and age are installed (detects OS)
 ```
+
+**Note:** Prerequisites (`chezmoi` and `age`) are managed separately from the package list and must be installed before running `make install`.
 
 ### Making Changes
 ```bash

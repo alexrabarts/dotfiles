@@ -2,7 +2,6 @@
 1password-cli
 acpid
 aether
-age
 alacritty
 asdcontrol
 atuin
@@ -15,7 +14,6 @@ blueberry
 brightnessctl
 btop
 btrfs-progs
-chezmoi
 clang
 claude-code
 cups
