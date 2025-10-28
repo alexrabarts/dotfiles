@@ -81,7 +81,6 @@ inxi
 iwd
 jq
 kdenlive
-keyd
 kvantum-qt5
 lazydocker
 lazygit
@@ -172,7 +171,7 @@ wireless-regdb
 wiremix
 wireplumber
 wl-clipboard
-wtype
+ydotool
 woff2-font-awesome
 xdg-desktop-portal-gtk
 xdg-desktop-portal-hyprland
