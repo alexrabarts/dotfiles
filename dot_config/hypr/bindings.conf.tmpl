@@ -5,7 +5,7 @@ $browser = omarchy-launch-browser
 
 # Override window close keybinding - map Super+W to Ctrl+W for tab closing
 unbind = SUPER, W
-bindd = SUPER, W, Close tab (Ctrl+W), exec, wtype -M ctrl -k w
+bindd = SUPER, W, Close tab (Ctrl+W), exec, ~/bin/send-ctrl-w
 bindd = SUPER, Q, Close window, killactive,
 
 # Unbind default Omarchy workspace navigation on arrow keys

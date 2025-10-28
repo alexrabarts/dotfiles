@@ -1,0 +1,4 @@
+#!/bin/bash
+# Send Ctrl+W keystroke
+sleep 0.05
+wtype -M ctrl -k w
