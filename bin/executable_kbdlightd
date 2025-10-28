@@ -1,26 +1,65 @@
 #!/bin/bash
 TIMEOUT=15        # seconds of inactivity
+OFF=0
 
-# Auto-detect keyboard backlight path and appropriate brightness levels
+# Auto-detect keyboard backlight path
 if [ -e /sys/class/leds/apple::kbd_backlight/brightness ]; then
+  KBD_BRIGHTNESS_PATH="/sys/class/leds/apple::kbd_backlight/brightness"
   MAX_BRIGHTNESS=$(cat /sys/class/leds/apple::kbd_backlight/max_brightness)
-  BRIGHT=$((MAX_BRIGHTNESS / 2))  # 50% brightness for Mac
-  OFF=0
+  DEFAULT_BRIGHT=$((MAX_BRIGHTNESS / 2))  # 50% default for Mac
 elif [ -e /sys/class/leds/dell::kbd_backlight/brightness ]; then
-  BRIGHT=2  # Dell uses 0-2 scale
-  OFF=0
+  KBD_BRIGHTNESS_PATH="/sys/class/leds/dell::kbd_backlight/brightness"
+  MAX_BRIGHTNESS=$(cat /sys/class/leds/dell::kbd_backlight/max_brightness)
+  DEFAULT_BRIGHT=2  # Dell uses 0-2 scale
 else
   echo "Error: No keyboard backlight device found" >&2
   exit 1
 fi
 
+# Initialize preferred brightness from current setting (or use default)
+CURRENT=$(cat "$KBD_BRIGHTNESS_PATH")
+if (( CURRENT > 0 )); then
+  PREFERRED_BRIGHT=$CURRENT
+else
+  PREFERRED_BRIGHT=$DEFAULT_BRIGHT
+fi
+
+LAST_SET_BRIGHTNESS=$OFF
+
 while true; do
   idle_ms=$(xprintidle)
   idle=$((idle_ms / 1000))
-  if (( idle < TIMEOUT )); then
-    sudo /usr/local/bin/set-kbd-brightness $BRIGHT
-  else
-    sudo /usr/local/bin/set-kbd-brightness $OFF
+  CURRENT=$(cat "$KBD_BRIGHTNESS_PATH")
+
+  # Detect user manual changes to brightness
+  if (( CURRENT != LAST_SET_BRIGHTNESS )); then
+    # User changed brightness manually
+    if (( CURRENT > 0 )); then
+      # User turned it on or adjusted level - remember this and re-enable auto behavior
+      PREFERRED_BRIGHT=$CURRENT
+    elif (( LAST_SET_BRIGHTNESS != OFF )); then
+      # User manually turned it off (set to 0) - respect that by setting preferred to 0
+      # This disables auto-turn-on until user manually increases brightness again
+      PREFERRED_BRIGHT=0
+    fi
   fi
+
+  # Only do auto-control if user hasn't disabled it (by setting preferred to 0)
+  if (( PREFERRED_BRIGHT > 0 )); then
+    if (( idle < TIMEOUT )); then
+      # Turn on to preferred brightness
+      if (( CURRENT != PREFERRED_BRIGHT )); then
+        sudo /usr/local/bin/set-kbd-brightness $PREFERRED_BRIGHT
+        LAST_SET_BRIGHTNESS=$PREFERRED_BRIGHT
+      fi
+    else
+      # Turn off after timeout
+      if (( CURRENT != OFF )); then
+        sudo /usr/local/bin/set-kbd-brightness $OFF
+        LAST_SET_BRIGHTNESS=$OFF
+      fi
+    fi
+  fi
+
   sleep 1
 done

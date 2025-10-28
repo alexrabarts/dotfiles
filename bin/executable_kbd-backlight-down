@@ -6,9 +6,12 @@ if [ -e /sys/class/leds/apple::kbd_backlight/brightness ]; then
   CURRENT=$(cat /sys/class/leds/apple::kbd_backlight/brightness)
   MAX=$(cat /sys/class/leds/apple::kbd_backlight/max_brightness)
   STEP=$((MAX / 10))  # 10% steps
-  NEW=$((CURRENT - STEP))
-  if (( NEW < 0 )); then
+
+  # If current is less than step size, go straight to 0
+  if (( CURRENT <= STEP )); then
     NEW=0
+  else
+    NEW=$((CURRENT - STEP))
   fi
   echo "$NEW" | sudo tee /sys/class/leds/apple::kbd_backlight/brightness > /dev/null
 elif [ -e /sys/class/leds/dell::kbd_backlight/brightness ]; then
