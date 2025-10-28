@@ -67,24 +67,24 @@ unbind = SHIFT, XF86MonBrightnessDown
 # Hardware-specific brightness and keyboard backlight controls
 {{- if $isMacHardware }}
 # Mac laptop keys
-# Screen brightness
-bindd = , XF86MonBrightnessUp, Screen brightness up, exec, brightnessctl set 5%+
-bindd = , XF86MonBrightnessDown, Screen brightness down, exec, brightnessctl set 5%-
-bindd = , F2, Screen brightness up, exec, brightnessctl set 5%+
-bindd = , F1, Screen brightness down, exec, brightnessctl set 5%-
+# Screen brightness (with key repeat)
+binde = , XF86MonBrightnessUp, exec, brightnessctl set 5%+
+binde = , XF86MonBrightnessDown, exec, brightnessctl set 5%-
+binde = , F2, exec, brightnessctl set 5%+
+binde = , F1, exec, brightnessctl set 5%-
 
-# Keyboard backlight
-bindd = , F6, Keyboard backlight up, exec, /usr/local/bin/kbd-backlight-up
-bindd = , F5, Keyboard backlight down, exec, /usr/local/bin/kbd-backlight-down
+# Keyboard backlight (with key repeat)
+binde = , F6, exec, /usr/local/bin/kbd-backlight-up
+binde = , F5, exec, /usr/local/bin/kbd-backlight-down
 {{- else }}
 # Dell laptop keys
-# Screen brightness (F6 = down, F7 = up)
-bindd = , XF86MonBrightnessUp, Screen brightness up, exec, brightnessctl set 5%+
-bindd = , XF86MonBrightnessDown, Screen brightness down, exec, brightnessctl set 5%-
-bindd = , F7, Screen brightness up, exec, brightnessctl set 5%+
-bindd = , F6, Screen brightness down, exec, brightnessctl set 5%-
+# Screen brightness (F6 = down, F7 = up, with key repeat)
+binde = , XF86MonBrightnessUp, exec, brightnessctl set 5%+
+binde = , XF86MonBrightnessDown, exec, brightnessctl set 5%-
+binde = , F7, exec, brightnessctl set 5%+
+binde = , F6, exec, brightnessctl set 5%-
 
-# Keyboard backlight toggle
+# Keyboard backlight toggle (no repeat)
 bindd = , F5, Keyboard backlight toggle, exec, /usr/local/bin/kbd-backlight-toggle
 {{- end }}
 
