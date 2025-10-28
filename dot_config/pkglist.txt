@@ -85,11 +85,9 @@ kvantum-qt5
 lazydocker
 lazygit
 less
-lib32-nvidia-utils
 libpulse
 libqalculate
 libreoffice-fresh
-libva-nvidia-driver
 libyaml
 limine
 limine-mkinitcpio-hook
@@ -112,8 +110,6 @@ noto-fonts-cjk
 noto-fonts-emoji
 noto-fonts-extra
 nss-mdns
-nvidia-open-dkms
-nvidia-utils
 obs-studio
 obsidian
 omarchy-chromium
