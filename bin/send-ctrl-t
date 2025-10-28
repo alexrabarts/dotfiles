@@ -1,4 +1,4 @@
 #!/bin/bash
 # Send Ctrl+T keystroke for new tab
-sleep 0.05
-wtype -M ctrl -k t
+sleep 0.1
+wtype -M ctrl -P t -p t -m ctrl

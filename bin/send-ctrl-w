@@ -1,4 +1,4 @@
 #!/bin/bash
 # Send Ctrl+W keystroke
-sleep 0.05
-wtype -M ctrl -k w
+sleep 0.1
+wtype -M ctrl -P w -p w -m ctrl
