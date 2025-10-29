@@ -3,45 +3,136 @@
 # This script unbinds/rebinds the keyboard USB device to force immediate reinitialization
 # Managed by chezmoi - do not edit directly in /etc/systemd/system-sleep/
 
+# Ensure the tools we need are on PATH when running from systemd
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+# Optional debug log path (overridable via FIX_T2_KEYBOARD_LOG_FILE)
+: "${FIX_T2_KEYBOARD_LOG_FILE:=/tmp/fix-t2-keyboard.log}"
+
+log() {
+  message="$*"
+  fallback=0
+
+  if ! logger -t fix-t2-keyboard "$message"; then
+    fallback=1
+  fi
+
+  # When journald logging fails or DEBUG flag is set, mirror to a temp file.
+  if [ -n "${FIX_T2_KEYBOARD_DEBUG:-}" ] || [ "$fallback" -eq 1 ]; then
+    printf '%s %s\n' "$(date '+%F %T')" "$message" >>"$FIX_T2_KEYBOARD_LOG_FILE" 2>/dev/null || true
+  fi
+
+  # Echo to stdout when running interactively (useful for manual tests).
+  if [ -t 1 ]; then
+    printf '%s\n' "$message"
+  fi
+}
+
 # Debug: log all invocations
-logger -t fix-t2-keyboard "Script called with args: $1 $2"
+log "Script called with args: $1 $2"
 
 case "$1" in
   post)
     # After resume, find and rebind the keyboard device in background
     # The keyboard is part of the BCE virtual HCI controller
-    # Run in background with timeout to prevent blocking suspend/resume
+    # Run in background to prevent blocking suspend/resume
     (
-      # Set a timeout for the entire operation
       exec 2>/dev/null
 
-      for device in /sys/bus/usb/devices/*/product; do
-        if timeout 1 grep -q "Apple Internal Keyboard" "$device" 2>/dev/null; then
+      log "Post-resume hook starting"
+
+      # Give kernel drivers a moment to settle before poking at devices
+      sleep 1
+
+      module_reload=0
+
+      # First try reloading apple-bce – on some kernels this is enough
+      if command -v modprobe >/dev/null 2>&1 && command -v modinfo >/dev/null 2>&1 && modinfo apple-bce >/dev/null 2>&1; then
+        if lsmod | awk '{print $1}' | grep -qx 'apple_bce'; then
+          log "Reloading apple-bce module"
+          if modprobe -r apple-bce 2>/dev/null; then
+            sleep 0.5
+            if modprobe apple-bce 2>/dev/null; then
+              module_reload=1
+              log "apple-bce reloaded successfully"
+            else
+              log "Failed to load apple-bce after unload"
+            fi
+          else
+            log "Failed to unload apple-bce module"
+          fi
+        else
+          log "apple-bce module not loaded (built-in or unavailable)"
+        fi
+      else
+        log "modprobe or apple-bce module not available"
+      fi
+
+      attempts=0
+      max_attempts=5
+
+      while [ "$attempts" -lt "$max_attempts" ]; do
+        attempts=$((attempts + 1))
+        log "Resume attempt $attempts: scanning for Apple Internal Keyboard / Trackpad devices"
+
+        found_any=0
+        success_any=0
+
+        for device in /sys/bus/usb/devices/*/product; do
+          [ -f "$device" ] || continue
+
+          product_name=$(cat "$device" 2>/dev/null | tr -d '\r')
           device_path=$(dirname "$device")
           device_name=$(basename "$device_path")
 
-          logger -t fix-t2-keyboard "Found keyboard device $device_name, rebinding..."
+          # Only target the internal keyboard/trackpad path
+          if printf '%s' "$product_name" | grep -q "Apple Internal Keyboard"; then
+            found_any=1
 
-          # Unbind with timeout - if this hangs, the timeout will kill it
-          if timeout 2 sh -c "echo '$device_name' > /sys/bus/usb/drivers/usb/unbind" 2>/dev/null; then
-            logger -t fix-t2-keyboard "Unbound $device_name"
-          else
-            logger -t fix-t2-keyboard "Unbind timed out or failed for $device_name"
+            log "Attempting rebind for $device_name ('$product_name')"
+
+            if timeout 3 sh -c "printf '%s' '$device_name' > /sys/bus/usb/drivers/usb/unbind"; then
+              log "Unbound $device_name"
+            else
+              log "Unbind timed out or failed for $device_name"
+              continue
+            fi
+
+            sleep 0.5
+
+            if timeout 3 sh -c "printf '%s' '$device_name' > /sys/bus/usb/drivers/usb/bind"; then
+              success_any=1
+              log "Rebound $device_name successfully"
+            else
+              log "Rebind timed out or failed for $device_name"
+            fi
           fi
+        done
 
-          # Brief delay
-          sleep 0.5
-
-          # Rebind with timeout
-          if timeout 2 sh -c "echo '$device_name' > /sys/bus/usb/drivers/usb/bind" 2>/dev/null; then
-            logger -t fix-t2-keyboard "Rebound keyboard device $device_name successfully"
-          else
-            logger -t fix-t2-keyboard "Rebind timed out or failed for $device_name"
-          fi
-
-          break
+        if [ "$found_any" -eq 0 ]; then
+          log "No Apple Internal devices detected on attempt $attempts"
         fi
+
+        if [ "$success_any" -eq 1 ]; then
+          if systemctl restart keyd >/dev/null 2>&1; then
+            log "Restarted keyd service after resume"
+          else
+            log "Failed to restart keyd service"
+          fi
+          log "Rebind successful; exiting hook"
+          exit 0
+        fi
+
+        # If module reload already succeeded, don't hammer the bus repeatedly
+        if [ "$module_reload" -eq 1 ]; then
+          log "Keyboard not detected yet after module reload; retrying once more"
+          module_reload=0
+        fi
+
+        sleep 1
       done
+
+      log "Keyboard device not found after resume attempts"
     ) &
 
     # Don't wait for background job - exit immediately to not block systemd

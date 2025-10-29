@@ -167,3 +167,32 @@ The `run_once_enable-keyd.sh` script handles everything automatically:
 - `sudo keyd monitor` is essential for debugging - shows exact key names keyd detects
 - Composite layers like `[alt+shift]` may not work as expected - need to find working examples
 - The `[meta+shift]` composite layer works fine, so the issue is specific to `[alt+shift]`
+
+## 🚧 IN PROGRESS: T2 Keyboard wakes after lid open
+
+### Goal
+Ensure the built-in Apple T2 keyboard reconnects immediately after opening the laptop lid (post-suspend) so key input works without unplug/replug.
+
+### Current Status
+- `system-scripts/executable_fix-t2-keyboard` pauses briefly after resume, reloads the `apple-bce` module when available, then runs a guarded USB rebind loop (5 tries) and restarts `keyd` only after a successful bind.
+- `run_onchange_install-t2-keyboard-fix.sh` is executable and copies the hook into `/usr/lib/systemd/system-sleep/`; run it whenever the script changes.
+- Waiting for a live suspend/resume test to confirm both display and keyboard recover immediately.
+
+### Next Steps
+- Install updated hook: `./run_onchange_install-t2-keyboard-fix.sh` (or `chezmoi apply`).
+- Suspend, reopen lid, confirm the screen wakes and the keyboard works without replugging.
+- Check logs for any failures: `journalctl -t fix-t2-keyboard -b | tail -n 50`.
+- If issues persist, capture the resume window from `dmesg` / `journalctl` and note whether the module reload path ran.
+
+### Debugging & Manual Testing
+- The hook logs to systemd (`journalctl -t fix-t2-keyboard`); for manual runs use the fallback debug mode.
+- Reinstall the hook after edits from the repo root: `cd ~/repos/github.com/alexrabarts/dotfiles && ./run_onchange_install-t2-keyboard-fix.sh`.
+- Manual trigger with interactive logging: `sudo FIX_T2_KEYBOARD_DEBUG=1 /usr/lib/systemd/system-sleep/fix-t2-keyboard post suspend`.
+- Debug logs are mirrored to `/tmp/fix-t2-keyboard.log` (override with `FIX_T2_KEYBOARD_LOG_FILE=/path`).
+- After suspend/resume, verify success via `sudo journalctl -t fix-t2-keyboard -b --no-pager | tail` and, if needed, inspect the temp log file.
+- Typical success log sequence (manual run): reload attempt, `Unbound 5-5`, `Rebound 5-5 successfully`, `Restarted keyd`, `Rebind successful; exiting hook`.
+
+### Files Modified
+- `system-scripts/executable_fix-t2-keyboard`
+- `run_onchange_install-t2-keyboard-fix.sh`
+- `SYSTEM_FILES.md`

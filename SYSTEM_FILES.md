@@ -86,6 +86,25 @@ sudo journalctl --vacuum-size=200M
 journalctl --disk-usage
 ```
 
+## OpenSSH Server
+
+**Files:**
+- `etc/ssh/sshd_config.tmpl` → `/etc/ssh/sshd_config`
+- `run_once_enable-ssh.sh` → enables and restarts `sshd`
+
+**Purpose:** Configures the OpenSSH server with hardened defaults (no password auth, no root logins, verbose logging) and ensures the daemon is enabled on boot.
+
+**Installation:**
+
+```bash
+chezmoi apply
+./run_once_enable-ssh.sh
+```
+
+The helper script renders the template with `chezmoi execute-template`, validates it with `sshd -t`, installs it to `/etc/ssh/sshd_config`, enables the `sshd` service, and starts or reloads the daemon. Re-run the script whenever you update the configuration.
+
+If this is the first time enabling sshd on the machine, the script also runs `ssh-keygen -A` to generate host keys before validation.
+
 ## Application-Specific Configuration
 
 Application-specific system configurations (like logrotate rules, systemd services) should be kept **in the application's repository**, not in dotfiles. This keeps deployment logic with the application code.
@@ -123,3 +142,19 @@ sudo systemctl restart keyd
 ```
 
 The `run_once_enable-keyd.sh` script performs the same steps automatically when chezmoi is applied on a new machine.
+
+## T2 Keyboard Resume Fix
+
+**File:** `system-scripts/executable_fix-t2-keyboard` → `/usr/lib/systemd/system-sleep/fix-t2-keyboard`
+
+**Purpose:** Ensures the built-in T2 keyboard is immediately responsive after suspend/resume by rebinding the USB device and restarting `keyd`.
+
+**Installation:**
+
+```bash
+sudo mkdir -p /usr/lib/systemd/system-sleep
+sudo cp ~/.local/share/chezmoi/system-scripts/executable_fix-t2-keyboard /usr/lib/systemd/system-sleep/fix-t2-keyboard
+sudo chmod 755 /usr/lib/systemd/system-sleep/fix-t2-keyboard
+```
+
+The `run_onchange_install-t2-keyboard-fix.sh` helper performs these steps automatically (and re-runs when the script changes). After copying, the fix takes effect on the next suspend/resume cycle.

@@ -1,0 +1,10 @@
+# Managed by chezmoi. This file renders to ~/.ssh/config.
+
+Host *
+    AddKeysToAgent yes
+    IdentityFile ~/.ssh/id_ed25519
+    ServerAliveInterval 30
+    ServerAliveCountMax 4
+    ForwardAgent no
+    HashKnownHosts yes
+    StrictHostKeyChecking ask

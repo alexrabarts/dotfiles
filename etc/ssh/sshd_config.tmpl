@@ -1,0 +1,40 @@
+# Managed by chezmoi. Copy to /etc/ssh/sshd_config via run_once_enable-ssh.sh.
+
+Include /etc/ssh/sshd_config.d/*.conf
+
+# Listen on the default SSH port. Change here if you need a non-standard port.
+Port 22
+AddressFamily any
+ListenAddress 0.0.0.0
+ListenAddress ::
+
+# Hardened authentication defaults.
+PermitRootLogin no
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+ChallengeResponseAuthentication no
+UsePAM yes
+AllowAgentForwarding yes
+AllowTcpForwarding yes
+X11Forwarding no
+PermitTunnel no
+
+# Public key authentication with the default authorized keys file.
+PubkeyAuthentication yes
+AuthorizedKeysFile	%h/.ssh/authorized_keys
+
+# Keep connections alive to avoid dropped sessions on flaky networks.
+ClientAliveInterval 120
+ClientAliveCountMax 2
+
+# Log to syslog.
+SyslogFacility AUTH
+LogLevel VERBOSE
+
+# Explicit host keys generated via ssh-keygen -A.
+HostKey /etc/ssh/ssh_host_ed25519_key
+HostKey /etc/ssh/ssh_host_ecdsa_key
+HostKey /etc/ssh/ssh_host_rsa_key
+
+# Only provide the modern SFTP subsystem.
+Subsystem	sftp	/usr/lib/ssh/sftp-server
