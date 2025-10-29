@@ -178,19 +178,26 @@ Ensure the built-in Apple T2 keyboard reconnects immediately after opening the l
 - `run_onchange_install-t2-keyboard-fix.sh` is executable and copies the hook into `/usr/lib/systemd/system-sleep/`; run it whenever the script changes.
 - Waiting for a live suspend/resume test to confirm both display and keyboard recover immediately.
 
-### Next Steps
-- Install updated hook: `./run_onchange_install-t2-keyboard-fix.sh` (or `chezmoi apply`).
-- Suspend, reopen lid, confirm the screen wakes and the keyboard works without replugging.
-- Check logs for any failures: `journalctl -t fix-t2-keyboard -b | tail -n 50`.
-- If issues persist, capture the resume window from `dmesg` / `journalctl` and note whether the module reload path ran.
-
-### Debugging & Manual Testing
-- The hook logs to systemd (`journalctl -t fix-t2-keyboard`); for manual runs use the fallback debug mode.
-- Reinstall the hook after edits from the repo root: `cd ~/repos/github.com/alexrabarts/dotfiles && ./run_onchange_install-t2-keyboard-fix.sh`.
-- Manual trigger with interactive logging: `sudo FIX_T2_KEYBOARD_DEBUG=1 /usr/lib/systemd/system-sleep/fix-t2-keyboard post suspend`.
-- Debug logs are mirrored to `/tmp/fix-t2-keyboard.log` (override with `FIX_T2_KEYBOARD_LOG_FILE=/path`).
-- After suspend/resume, verify success via `sudo journalctl -t fix-t2-keyboard -b --no-pager | tail` and, if needed, inspect the temp log file.
-- Typical success log sequence (manual run): reload attempt, `Unbound 5-5`, `Rebound 5-5 successfully`, `Restarted keyd`, `Rebind successful; exiting hook`.
+### Final Investigation Plan
+1. **Confirm the hook actually runs on resume.**
+   - Reinstall the hook (`./run_onchange_install-t2-keyboard-fix.sh`), suspend/resume, then inspect `journalctl -t fix-t2-keyboard -b --no-pager`.
+   - If nothing logs, manually invoke the script with `sudo FIX_T2_KEYBOARD_DEBUG=1 /usr/lib/systemd/system-sleep/fix-t2-keyboard post suspend` and note both stdout and `/tmp/fix-t2-keyboard.log`.
+2. **Document the working hardware topology.**
+   - While the keyboard is responsive, capture the device tree with `lsusb -vt` and `sudo udevadm info -a -p "$(udevadm info -q path -n /dev/input/by-id/usb-Apple_Inc._Apple_Internal_Keyboard-event-kbd)"`.
+   - Record the USB bus/port and the bound driver (`apple-ib-tkbd`, `hid-generic`, etc.) for later comparison.
+3. **Capture the failing state immediately after a bad resume.**
+   - Without replugging, run the same `lsusb` and `udevadm` commands plus `sudo journalctl -k -b | tail -n 200` to see kernel errors.
+   - Diff the successful vs failing topology to identify which device or driver disappears.
+4. **Validate the rebind steps manually.**
+   - Using the failing state, attempt the exact unbind/rebind sequence from the script; if it fails, try targeting the specific driver directory (e.g. `/sys/bus/hid/drivers/apple-ib-tkbd/`).
+   - Log whether `timeout` exits, whether the device ID changes, and whether restarting `keyd` affects input.
+5. **Stress test the candidate fix path.**
+   - Apply whichever manual sequence recovers the keyboard reliably, then fold it into the hook and repeat 5–10 suspend cycles, capturing logs each time.
+   - Ensure the hook exits quickly (systemd watchdog) and that it skips work when the device already recovered.
+6. **Decide on the long-term automation.**
+   - If USB rebinding is reliable, keep the hook but tighten device matching and add back-off.
+   - If the driver reload is key, consider switching to a dedicated systemd `resume.target` service that runs synchronously instead of a sleep hook.
+   - If neither works, escalate to collecting a full suspend/resume trace (`sudo systemd-analyze plot` and kernel tracepoints) before revisiting the approach.
 
 ### Files Modified
 - `system-scripts/executable_fix-t2-keyboard`

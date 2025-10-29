@@ -34,6 +34,10 @@ bind = SUPER SHIFT, TAB, bringactivetotop,
 bind = SUPER SHIFT, bracketleft, workspace, r-1
 bind = SUPER SHIFT, bracketright, workspace, r+1
 
+# Scratchpad controls
+bind = SUPER ALT, S, movetoworkspacesilent, special:scratchpad
+bind = SUPER SHIFT, S, movetoworkspacesilent, special:scratchpad
+
 bindd = SUPER, RETURN, Terminal, exec, $terminal --working-directory="$(omarchy-cmd-terminal-cwd)"
 bindd = SUPER SHIFT, F, File manager, exec, uwsm-app -- nautilus --new-window
 bindd = SUPER SHIFT, B, Browser, exec, $browser
