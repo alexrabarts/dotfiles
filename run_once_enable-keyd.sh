@@ -2,6 +2,12 @@
 # Enable and start keyd service for keyboard remapping
 # This script runs once per machine via chezmoi's run_once mechanism
 
+# Skip setup on macOS where keyd is not required.
+if [[ "$(uname -s)" == "Darwin" ]]; then
+    echo "Skipping keyd setup on macOS."
+    exit 0
+fi
+
 # Check if keyd is installed
 if ! command -v keyd &> /dev/null; then
     echo "keyd is not installed. Install it with: sudo pacman -S keyd"

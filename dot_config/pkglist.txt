@@ -142,7 +142,6 @@ signal-desktop
 slurp
 snapper
 sof-firmware
-spotify
 starship
 sushi
 swaybg

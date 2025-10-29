@@ -1,6 +1,10 @@
 # Tmux plugins are managed by TPM, not tracked in dotfiles
 .config/tmux/plugins/
 
+{{- if ne .chezmoi.os "darwin" }}
+Brewfile
+{{- end }}
+
 {{- if ne .chezmoi.os "linux" }}
 # Hyprland compositor (Linux desktop only)
 .config/hypr/

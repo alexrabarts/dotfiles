@@ -3,6 +3,12 @@ set -euo pipefail
 
 echo "Installing keyboard backlight scripts..."
 
+# macOS handles keyboard backlights differently and does not expose the same sysfs paths.
+if [[ "$(uname -s)" == "Darwin" ]]; then
+  echo "  Skipping keyboard backlight setup on macOS."
+  exit 0
+fi
+
 # Copy scripts to /usr/local/bin/
 sudo cp ~/.local/share/chezmoi/bin/executable_kbdlightd /usr/local/bin/kbdlightd
 sudo cp ~/.local/share/chezmoi/bin/executable_set-kbd-brightness /usr/local/bin/set-kbd-brightness

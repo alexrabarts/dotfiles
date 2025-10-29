@@ -8,6 +8,12 @@ SERVICE_NAME="sshd"
 SOURCE_TEMPLATE="${CHEZMOI_SOURCE_DIR:-$HOME/.local/share/chezmoi}/etc/ssh/sshd_config.tmpl"
 DEST_CONFIG="/etc/ssh/sshd_config"
 
+# macOS uses launchctl/systemsetup instead of systemd for ssh enablement.
+if [[ "$(uname -s)" == "Darwin" ]]; then
+    echo "Skipping systemd-based ssh enablement on macOS."
+    exit 0
+fi
+
 # Render the sshd configuration template to a temporary file.
 render_config() {
     local tmpfile

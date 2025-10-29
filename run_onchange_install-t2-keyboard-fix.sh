@@ -3,6 +3,12 @@ set -euo pipefail
 
 echo "Installing T2 keyboard resume fix..."
 
+# macOS does not use systemd sleep hooks; skip installation.
+if [[ "$(uname -s)" == "Darwin" ]]; then
+  echo "  Skipping T2 keyboard resume fix on macOS."
+  exit 0
+fi
+
 # Create system-sleep directory if it doesn't exist
 sudo mkdir -p /usr/lib/systemd/system-sleep
 

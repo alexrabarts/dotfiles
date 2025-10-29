@@ -7,6 +7,12 @@ if locale -a 2>/dev/null | grep -q "^en_GB.utf8$"; then
   exit 0
 fi
 
+# macOS handles locales differently and does not ship locale-gen.
+if [[ "$(uname -s)" == "Darwin" ]] || ! command -v locale-gen >/dev/null 2>&1; then
+  echo "Skipping locale-gen on this platform."
+  exit 0
+fi
+
 echo "Generating en_GB.UTF-8 locale..."
 
 # Check if locale.gen exists
