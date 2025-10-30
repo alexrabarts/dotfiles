@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+if [[ $(uname -s) != "Darwin" ]]; then
+  echo "capslock-to-control is only supported on macOS." >&2
+  exit 0
+fi
+
+if ! command -v hidutil >/dev/null 2>&1; then
+  echo "hidutil not found; cannot remap Caps Lock to Control." >&2
+  exit 1
+fi
+
+hidutil property --set '{
+  "UserKeyMapping": [
+    { "HIDKeyboardModifierMappingSrc": 0x700000039, "HIDKeyboardModifierMappingDst": 0x7000000E0 }
+  ]
+}'
