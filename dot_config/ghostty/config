@@ -10,11 +10,6 @@ font-size = 13
 # Keybindings
 # Fix for Claude Code shift+enter
 keybind = shift+enter=text:\x1b\r
-# Ensure Option+Arrow keys emit standard xterm sequences for tmux navigation
-keybind = alt+left=text:\x1b[1;3D
-keybind = alt+right=text:\x1b[1;3C
-keybind = shift+alt+left=text:\x1b[1;4D
-keybind = shift+alt+right=text:\x1b[1;4C
 
 # macOS: Use Option key as Alt/Meta for terminal keybindings
 macos-option-as-alt = true
