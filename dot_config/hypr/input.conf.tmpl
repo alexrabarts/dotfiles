@@ -1,16 +1,17 @@
 # Control your input devices
 # See https://wiki.hypr.land/Configuring/Variables/#input
 {{- $isMacHardware := or (contains "MacBook" (output "cat" "/sys/class/dmi/id/product_name" | trim)) (contains "Mac" (output "cat" "/sys/class/dmi/id/sys_vendor" | trim)) }}
+{{- $enableSwapCaps := ne (lookPath "hyprctl") "" }}
 input {
   # Keyboard layout (hardware-specific: Mac vs standard)
 {{- if $isMacHardware }}
   kb_layout = gb
   kb_variant = mac
   kb_model = pc105
-  kb_options = compose:caps
+  kb_options = compose:caps{{ if $enableSwapCaps }},ctrl:swapcaps{{ end }}
 {{- else }}
   kb_layout = gb
-  kb_options = compose:caps,altwin:swap_alt_win
+  kb_options = compose:caps,altwin:swap_alt_win{{ if $enableSwapCaps }},ctrl:swapcaps{{ end }}
 {{- end }}
 
   # Change speed of keyboard repeat
