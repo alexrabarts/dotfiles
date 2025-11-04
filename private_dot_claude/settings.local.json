@@ -1,7 +1,16 @@
 {
   "permissions": {
     "allow": [
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(find:*)",
+      "Bash(ls:*)",
+      "Bash(chmod:*)",
+      "Bash(awk:*)",
+      "Bash(for repo in property-bot car-bot vibe-monitor)",
+      "Bash(do echo \"=== $repo ===\")",
+      "Bash(done)",
+      "Bash(git -C /home/alex/repos/github.com/alexrabarts/$repo status -sb)",
+      "Bash(git -C /home/alex/repos/github.com/alexrabarts/$repo log --oneline -1)"
     ],
     "deny": [],
     "ask": []

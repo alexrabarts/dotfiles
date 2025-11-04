@@ -1,3 +1,8 @@
+# Repository documentation (not deployed to home)
+CLAUDE.md
+README.md
+CHANGELOG.md
+
 # Tmux plugins are managed by TPM, not tracked in dotfiles
 .config/tmux/plugins/
 
