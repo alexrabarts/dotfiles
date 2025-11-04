@@ -58,7 +58,7 @@ chezmoi cat ~/.zshrc      # Preview rendered output for a file
 1. **Login shells**: `dot_zprofile` → sets up Homebrew environment
 2. **Interactive shells**: `dot_zshrc.tmpl` → main configuration with:
    - PATH management via `__path_prepend()` helper (prevents duplicates)
-   - Tool integrations: starship, atuin, Google Cloud SDK, bun
+   - Tool integrations: powerlevel10k (zsh prompt), atuin, Google Cloud SDK, bun
    - Chezmoi aliases (cz, czap, cze, czd)
    - Editor setup (prefers nvim → vim → vi)
    - PostgreSQL completion for `pg` command

@@ -1,4 +1,5 @@
 # Repository documentation (not deployed to home)
+.agent/
 CLAUDE.md
 README.md
 CHANGELOG.md

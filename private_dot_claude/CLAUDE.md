@@ -106,24 +106,27 @@ This file provides guidance to Claude Code (claude.ai/code) and other AI agents 
 ## Project Structure Standards
 
 ### .agent/ Directory
-Every project should maintain an `.agent/` directory with:
+Every project should maintain an `.agent/` directory for AI agent documentation and knowledge.
 
-**sop/** - Standard Operating Procedures
-- `issues.md` - Known issues and their solutions
-- `learnings.md` - Insights gained during development
-- `debugging.md` - Debugging tips and common problems
-- `deployment.md` - Deployment procedures and checklists
+**Directory structure:**
+- **sop/** - Standard Operating Procedures (issues, learnings, debugging, deployment)
+- **system/** - System Documentation (architecture, database, dependencies, API)
+- **tasks/** - Project Planning (roadmap, PRD, backlog)
 
-**system/** - System Documentation
-- `architecture.md` - System design and component relationships
-- `database.md` - Schema documentation and query patterns
-- `dependencies.md` - External services and libraries
-- `api.md` - API contracts and integration points
+Each `.agent/` directory should include a `README.md` that:
+- Explains the directory structure
+- Links to existing documentation files
+- Describes how to update documentation (e.g., via `/update-doc` command)
 
-**tasks/** - Project Planning
-- `roadmap.md` - Long-term vision and phases
-- `prd.md` - Product requirements and feature specs
-- `backlog.md` - Prioritized list of pending work
+**Updating documentation:**
+Use the `/update-doc` slash command to add content to .agent/ files:
+```
+/update-doc I learned that X requires Y
+/update-doc Issue: Z is broken when W happens
+/update-doc Feature idea: implement ABC
+```
+
+See the [dotfiles .agent/README.md](https://github.com/alexrabarts/dotfiles/tree/master/.agent) for a reference implementation.
 
 ### Development Commands
 Common Makefile targets across projects:
