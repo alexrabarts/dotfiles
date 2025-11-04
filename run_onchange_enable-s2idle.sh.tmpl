@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+{{- if eq .chezmoi.os "linux" }}
+
 echo "Configuring system suspend mode (s2idle)..."
 
 SOURCE_DIR="${CHEZMOI_SOURCE_DIR:-$HOME/.local/share/chezmoi}"
@@ -15,3 +17,10 @@ sudo systemctl restart set-s2idle.service
 CURRENT_STATE=$(cat /sys/power/mem_sleep 2>/dev/null || echo "unknown")
 echo "  ✓ mem_sleep now reports: ${CURRENT_STATE}"
 echo "✓ s2idle configuration applied"
+
+{{- else }}
+
+# Skipping s2idle configuration (Linux only)
+exit 0
+
+{{- end }}
