@@ -2,7 +2,38 @@
 description: Add learnings, issues, SOPs, or feature ideas to .agent/ documentation
 ---
 
-You are helping the user document knowledge about their dotfiles repository. The user wants to add documentation to the appropriate file in the `.agent/` directory structure.
+You are helping the user document knowledge about their repository. The user wants to either initialize the `.agent/` directory structure or add documentation to existing files.
+
+## Initialization Mode
+
+If the user says `/update-doc init` or `/update-doc initialise`, you should:
+
+1. **Check if `.agent/` directory exists** - Use Bash to check if the directory structure exists
+2. **Create directory structure** if needed:
+   ```
+   .agent/
+   ├── README.md
+   ├── sop/
+   │   ├── learnings.md
+   │   ├── issues.md
+   │   └── (optional: debugging.md, deployment.md)
+   ├── system/
+   │   └── (optional: architecture.md, database.md, dependencies.md)
+   └── tasks/
+       └── (optional: roadmap.md, backlog.md, prd.md)
+   ```
+
+3. **Create template files** for the core documentation:
+   - `.agent/README.md` - Project documentation index (use dotfiles .agent/README.md as template)
+   - `.agent/sop/learnings.md` - Starting template with "# Learnings" header
+   - `.agent/sop/issues.md` - Starting template with "# Known Issues" header
+
+4. **Augment existing files** if they already exist:
+   - Check if README.md has all sections (Directory Structure, Quick Links, How to Update)
+   - Check if learnings.md and issues.md have proper headers
+   - Add missing sections without modifying existing content
+
+5. **Confirm completion** by listing what was created or updated
 
 ## Available Documentation Files
 
