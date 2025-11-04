@@ -3,6 +3,12 @@ set -euo pipefail
 
 {{- if eq .chezmoi.os "linux" }}
 
+# Only configure s2idle on desktop environments (detected by Hyprland installation)
+if ! command -v Hyprland >/dev/null 2>&1; then
+  echo "Skipping s2idle configuration (Hyprland not installed)"
+  exit 0
+fi
+
 echo "Configuring system suspend mode (s2idle)..."
 
 SOURCE_DIR="${CHEZMOI_SOURCE_DIR:-$HOME/.local/share/chezmoi}"
