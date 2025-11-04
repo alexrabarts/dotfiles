@@ -1,0 +1,17 @@
+# Claude Code Settings
+# Documentation: https://docs.claude.com/en/docs/claude-code/settings
+
+# Extended Thinking
+# Enables deeper analysis for complex tasks
+# Note: Impacts prompt caching efficiency
+MAX_THINKING_TOKENS: 10000
+
+# Uncomment additional settings as needed:
+
+# Model Selection
+# model: sonnet  # Options: sonnet, opus, haiku, sonnet[1m], opusplan
+
+# Performance Optimization
+# BASH_MAX_OUTPUT_LENGTH: 30000
+# MAX_MCP_OUTPUT_TOKENS: 25000
+# DISABLE_NON_ESSENTIAL_MODEL_CALLS: true

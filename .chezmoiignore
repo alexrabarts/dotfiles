@@ -33,3 +33,18 @@ etc/
 Library/
 {{- end }}
 create-mtp-udev-rule.sh
+
+# Claude credentials contain OAuth tokens and should be encrypted with age
+# TODO: Set up age encryption and add with: chezmoi add --encrypt ~/.claude/.credentials.json
+.claude/.credentials.json
+
+# Claude ephemeral/cache data (not needed in dotfiles)
+.claude/debug/
+.claude/todos/
+.claude/shell-snapshots/
+.claude/history.jsonl
+.claude/projects/
+.claude/file-history/
+.claude/session-env/
+.claude/local/
+.claude/statsig/
