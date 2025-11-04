@@ -174,32 +174,44 @@ The `run_once_enable-keyd.sh` script handles everything automatically:
 Ensure the built-in Apple T2 keyboard reconnects immediately after opening the laptop lid (post-suspend) so key input works without unplug/replug.
 
 ### Current Status
-- `system-scripts/executable_fix-t2-keyboard` pauses briefly after resume, reloads the `apple-bce` module when available, then runs a guarded USB rebind loop (5 tries) and restarts `keyd` only after a successful bind.
+- `system-scripts/executable_fix-t2-keyboard` pauses briefly after resume, waits for USB devices to settle, then runs a guarded USB rebind loop (5 tries) and restarts `keyd` only after a successful bind.
 - `run_onchange_install-t2-keyboard-fix.sh` is executable and copies the hook into `/usr/lib/systemd/system-sleep/`; run it whenever the script changes.
-- Waiting for a live suspend/resume test to confirm both display and keyboard recover immediately.
+- Deep sleep (S3) still triggers an `apple_bce` crash on resume; `s2idle` works reliably and is now enforced by a systemd service.
 
-### Final Investigation Plan
-1. **Confirm the hook actually runs on resume.**
-   - Reinstall the hook (`./run_onchange_install-t2-keyboard-fix.sh`), suspend/resume, then inspect `journalctl -t fix-t2-keyboard -b --no-pager`.
-   - If nothing logs, manually invoke the script with `sudo FIX_T2_KEYBOARD_DEBUG=1 /usr/lib/systemd/system-sleep/fix-t2-keyboard post suspend` and note both stdout and `/tmp/fix-t2-keyboard.log`.
-2. **Document the working hardware topology.**
-   - While the keyboard is responsive, capture the device tree with `lsusb -vt` and `sudo udevadm info -a -p "$(udevadm info -q path -n /dev/input/by-id/usb-Apple_Inc._Apple_Internal_Keyboard-event-kbd)"`.
-   - Record the USB bus/port and the bound driver (`apple-ib-tkbd`, `hid-generic`, etc.) for later comparison.
-3. **Capture the failing state immediately after a bad resume.**
-   - Without replugging, run the same `lsusb` and `udevadm` commands plus `sudo journalctl -k -b | tail -n 200` to see kernel errors.
-   - Diff the successful vs failing topology to identify which device or driver disappears.
-4. **Validate the rebind steps manually.**
-   - Using the failing state, attempt the exact unbind/rebind sequence from the script; if it fails, try targeting the specific driver directory (e.g. `/sys/bus/hid/drivers/apple-ib-tkbd/`).
-   - Log whether `timeout` exits, whether the device ID changes, and whether restarting `keyd` affects input.
-5. **Stress test the candidate fix path.**
-   - Apply whichever manual sequence recovers the keyboard reliably, then fold it into the hook and repeat 5–10 suspend cycles, capturing logs each time.
-   - Ensure the hook exits quickly (systemd watchdog) and that it skips work when the device already recovered.
-6. **Decide on the long-term automation.**
-   - If USB rebinding is reliable, keep the hook but tighten device matching and add back-off.
-   - If the driver reload is key, consider switching to a dedicated systemd `resume.target` service that runs synchronously instead of a sleep hook.
-   - If neither works, escalate to collecting a full suspend/resume trace (`sudo systemd-analyze plot` and kernel tracepoints) before revisiting the approach.
+### Next Steps
+- Install updated hook: `./run_onchange_install-t2-keyboard-fix.sh` (or `chezmoi apply`).
+- Enforce s2idle on new machines: `./run_onchange_enable-s2idle.sh` (or `chezmoi apply`).
+- Suspend, reopen lid, confirm the screen wakes and the keyboard works without replugging.
+- Check logs for any failures: `tail -n 50 /var/log/fix-t2-keyboard.log` or `journalctl -t fix-t2-keyboard -b | tail -n 50`.
+- If issues persist, capture the resume window from `dmesg` / `journalctl` and note whether the rebind loop logged any failures.
+- TODO: Report the `apple_bce` Oops upstream and revisit enabling S3 once a fix lands.
+
+### Debugging & Manual Testing
+- The hook logs to systemd (`journalctl -t fix-t2-keyboard`) and mirrors every message to `/var/log/fix-t2-keyboard.log` (override with `FIX_T2_KEYBOARD_LOG_FILE=/path`) so you can inspect without sudo.
+- Reinstall the hook after edits from the repo root: `cd ~/repos/github.com/alexrabarts/dotfiles && ./run_onchange_install-t2-keyboard-fix.sh`.
+- Manual trigger with interactive logging: `sudo /usr/lib/systemd/system-sleep/fix-t2-keyboard post suspend`.
+- After suspend/resume, verify success via `tail -n 50 /var/log/fix-t2-keyboard.log` or `sudo journalctl -t fix-t2-keyboard -b --no-pager | tail`.
+- Typical success log sequence (manual run): `Waiting for USB devices to settle`, `Unbound 5-5`, `Rebound 5-5 successfully`, `Restarted keyd`, `Rebind successful; exiting hook`.
 
 ### Files Modified
 - `system-scripts/executable_fix-t2-keyboard`
 - `run_onchange_install-t2-keyboard-fix.sh`
 - `SYSTEM_FILES.md`
+
+## 🛑 BLOCKED: tmux Option+Arrow window navigation
+
+### Goal
+Let Option+Left/Right (and the Shift variants) cycle tmux windows, while keeping the existing Option+[ / ] bindings and leaving shell word navigation (Meta+b / Meta+f) intact when desired.
+
+### Attempts
+- Added tmux bindings for the standard CSI sequences used by Meta+arrow keys (`\e[1;3D`, etc.) and enabled `xterm-keys`. Result: Option+Arrow still acted as Meta+b / Meta+f inside tmux, so the new bindings never triggered.
+- Patched Ghostty to emit custom escape sequences (`\u001b[1;9D` / `\u001b[1;10D`) for Option+Arrow and Shift+Option+Arrow and bound those sequences in tmux. After reload, `cat -v` inside tmux continued to show `^[b` / `^[f`, which means Ghostty is still sending the default Meta+b / Meta+f sequences despite the config change.
+- Verified the sequences with `printf 'Press Option+Left: '; cat -v` (shows `^[b` and `^[f`), confirming tmux receives plain Meta+b / Meta+f.
+
+### Current Status
+Option+Arrow remains mapped to shell word navigation. The Ghostty keybinding override either is not being applied (config path?) or Ghostty ignores the custom mapping when `macos-option-as-alt=true`.
+
+### Next Steps
+- Double-check where Ghostty expects the config file when managed via chezmoi (Application Support vs. `~/Library/Preferences`); ensure `keybind` directives load.
+- Alternatively, consider Karabiner-Elements to rewrite Option+Arrow to unique escape sequences before the terminal sees them.
+- For now, stick with Option+[ / ] for tmux window navigation.

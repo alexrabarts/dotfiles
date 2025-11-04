@@ -6,21 +6,26 @@
 # Ensure the tools we need are on PATH when running from systemd
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
-# Optional debug log path (overridable via FIX_T2_KEYBOARD_LOG_FILE)
-: "${FIX_T2_KEYBOARD_LOG_FILE:=/tmp/fix-t2-keyboard.log}"
+# Log file path for human-readable history (overridable via FIX_T2_KEYBOARD_LOG_FILE)
+: "${FIX_T2_KEYBOARD_LOG_FILE:=/var/log/fix-t2-keyboard.log}"
 
 log() {
   message="$*"
-  fallback=0
 
-  if ! logger -t fix-t2-keyboard "$message"; then
-    fallback=1
+  logger -t fix-t2-keyboard "$message" 2>/dev/null || true
+
+  # Always mirror log entries to an accessible file for post-resume debugging.
+  log_dir=${FIX_T2_KEYBOARD_LOG_FILE%/*}
+  if [ "$log_dir" != "$FIX_T2_KEYBOARD_LOG_FILE" ]; then
+    mkdir -p "$log_dir" 2>/dev/null || true
   fi
 
-  # When journald logging fails or DEBUG flag is set, mirror to a temp file.
-  if [ -n "${FIX_T2_KEYBOARD_DEBUG:-}" ] || [ "$fallback" -eq 1 ]; then
-    printf '%s %s\n' "$(date '+%F %T')" "$message" >>"$FIX_T2_KEYBOARD_LOG_FILE" 2>/dev/null || true
+  if [ ! -e "$FIX_T2_KEYBOARD_LOG_FILE" ]; then
+    touch "$FIX_T2_KEYBOARD_LOG_FILE" 2>/dev/null || true
+    chmod 0644 "$FIX_T2_KEYBOARD_LOG_FILE" 2>/dev/null || true
   fi
+
+  printf '%s %s\n' "$(date '+%F %T')" "$message" >>"$FIX_T2_KEYBOARD_LOG_FILE" 2>/dev/null || true
 
   # Echo to stdout when running interactively (useful for manual tests).
   if [ -t 1 ]; then
@@ -44,28 +49,9 @@ case "$1" in
       # Give kernel drivers a moment to settle before poking at devices
       sleep 1
 
-      module_reload=0
-
-      # First try reloading apple-bce – on some kernels this is enough
-      if command -v modprobe >/dev/null 2>&1 && command -v modinfo >/dev/null 2>&1 && modinfo apple-bce >/dev/null 2>&1; then
-        if lsmod | awk '{print $1}' | grep -qx 'apple_bce'; then
-          log "Reloading apple-bce module"
-          if modprobe -r apple-bce 2>/dev/null; then
-            sleep 0.5
-            if modprobe apple-bce 2>/dev/null; then
-              module_reload=1
-              log "apple-bce reloaded successfully"
-            else
-              log "Failed to load apple-bce after unload"
-            fi
-          else
-            log "Failed to unload apple-bce module"
-          fi
-        else
-          log "apple-bce module not loaded (built-in or unavailable)"
-        fi
-      else
-        log "modprobe or apple-bce module not available"
+      log "Waiting for USB devices to settle"
+      if command -v udevadm >/dev/null 2>&1; then
+        udevadm settle --timeout=3 >/dev/null 2>&1 || true
       fi
 
       attempts=0
@@ -121,12 +107,6 @@ case "$1" in
           fi
           log "Rebind successful; exiting hook"
           exit 0
-        fi
-
-        # If module reload already succeeded, don't hammer the bus repeatedly
-        if [ "$module_reload" -eq 1 ]; then
-          log "Keyboard not detected yet after module reload; retrying once more"
-          module_reload=0
         fi
 
         sleep 1

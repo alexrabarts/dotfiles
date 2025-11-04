@@ -158,3 +158,21 @@ sudo chmod 755 /usr/lib/systemd/system-sleep/fix-t2-keyboard
 ```
 
 The `run_onchange_install-t2-keyboard-fix.sh` helper performs these steps automatically (and re-runs when the script changes). After copying, the fix takes effect on the next suspend/resume cycle.
+
+## Suspend Mode (s2idle) Configuration
+
+**Files:**
+- `system-scripts/executable_set-s2idle` → `/usr/local/sbin/set-s2idle`
+- `etc/systemd/system/set-s2idle.service` → `/etc/systemd/system/set-s2idle.service`
+- `run_onchange_enable-s2idle.sh` → installs the script and enables the service
+
+**Purpose:** Forces the system to use suspend-to-idle (s2idle) instead of deep sleep (S3), avoiding resume crashes in the `apple_bce` driver on T2 hardware.
+
+**Installation:**
+
+```bash
+chezmoi apply
+./run_onchange_enable-s2idle.sh
+```
+
+The helper copies the script to `/usr/local/sbin`, installs the systemd unit, reloads the daemon, enables the service, and ensures `/sys/power/mem_sleep` is set to `s2idle` immediately. Re-run it whenever you change the script or service.

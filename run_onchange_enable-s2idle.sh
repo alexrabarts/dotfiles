@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "Configuring system suspend mode (s2idle)..."
+
+SOURCE_DIR="${CHEZMOI_SOURCE_DIR:-$HOME/.local/share/chezmoi}"
+
+sudo install -D -m 755 "${SOURCE_DIR}/system-scripts/executable_set-s2idle" /usr/local/sbin/set-s2idle
+sudo install -D -m 644 "${SOURCE_DIR}/etc/systemd/system/set-s2idle.service" /etc/systemd/system/set-s2idle.service
+
+sudo systemctl daemon-reload
+sudo systemctl enable --now set-s2idle.service
+sudo systemctl restart set-s2idle.service
+
+CURRENT_STATE=$(cat /sys/power/mem_sleep 2>/dev/null || echo "unknown")
+echo "  ✓ mem_sleep now reports: ${CURRENT_STATE}"
+echo "✓ s2idle configuration applied"

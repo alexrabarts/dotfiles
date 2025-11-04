@@ -1,0 +1,13 @@
+[Unit]
+Description=Configure suspend mode to s2idle
+After=local-fs.target
+Before=sleep.target
+ConditionPathExists=/sys/power/mem_sleep
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/set-s2idle
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

@@ -78,6 +78,13 @@ When assisting with system administration tasks:
 
 6. **Monitor Results**: Provide commands to verify the solution worked and monitor ongoing behavior.
 
+7. **Be Thorough with Analysis**: When analyzing systems for cleanup or optimization:
+   - Always examine ALL items found, not just the largest ones
+   - For git repositories, check EVERY repository for committed binaries, not just large repos
+   - Use systematic approaches (e.g., iterate through all repos, check each one)
+   - Don't skip "small" items assuming they're insignificant
+   - Provide complete inventories before making recommendations
+
 ## Communication Style
 
 - Use precise technical terminology but explain jargon when necessary

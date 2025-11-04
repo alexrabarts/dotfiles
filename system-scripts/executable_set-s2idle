@@ -1,0 +1,34 @@
+#!/bin/sh
+# Ensure the system uses suspend-to-idle (s2idle) instead of deep sleep.
+# Managed by chezmoi – copied to /usr/local/sbin/set-s2idle by run_onchange_enable-s2idle.sh.
+
+set -eu
+
+TARGET="/sys/power/mem_sleep"
+DESIRED="s2idle"
+
+log() {
+  if command -v logger >/dev/null 2>&1; then
+    logger -t set-s2idle "$*"
+  else
+    printf '%s\n' "$*"
+  fi
+}
+
+if [ ! -e "$TARGET" ]; then
+  log "mem_sleep control (${TARGET}) is not present; skipping configuration."
+  exit 0
+fi
+
+AVAILABLE=$(cat "$TARGET" 2>/dev/null || echo "")
+if ! printf '%s' "$AVAILABLE" | grep -qw "$DESIRED"; then
+  log "Desired suspend mode '${DESIRED}' is not available (reported: ${AVAILABLE})."
+  exit 0
+fi
+
+if printf '%s' "$DESIRED" >"$TARGET" 2>/dev/null; then
+  log "Configured mem_sleep to '${DESIRED}' (available modes: ${AVAILABLE})."
+else
+  log "Failed to configure mem_sleep to '${DESIRED}'."
+  exit 1
+fi
