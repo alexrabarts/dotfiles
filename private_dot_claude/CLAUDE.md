@@ -147,7 +147,6 @@ To minimize context usage, agents are organized into:
 1. **Universal Agents** (`~/.claude/agents/`) - Always available:
    - `code-reviewer` - Code review and quality analysis
    - `technical-docs-writer` - Technical documentation and guides
-   - `prompt-engineer` - AI prompt engineering and optimization
 
 2. **Agent Library** (`~/.claude/agents-library/`) - Activated per-project:
    - Organized by category (backend, frontend, mobile, infrastructure, planning, etc.)
@@ -209,6 +208,7 @@ Use the `/setup-agents` slash command to activate relevant agents:
 **Specialized** (`~/.claude/agents-library/specialized/`):
 - `music-theory-expert` - Music theory and composition
 - `geo-aeo-strategist` - AI content optimization (GEO/AEO)
+- `prompt-engineer` - AI prompt engineering and optimization
 
 ## Service Management
 
