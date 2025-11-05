@@ -140,26 +140,75 @@ Common Makefile targets across projects:
 
 ## Agent Specialization
 
-### Use Specialized Agents
-When working on specific technology stacks, use the appropriate specialized agent:
+### Agent Management Philosophy
 
-**Backend:**
+To minimize context usage, agents are organized into:
+
+1. **Universal Agents** (`~/.claude/agents/`) - Always available:
+   - `code-reviewer` - Code review and quality analysis
+   - `technical-docs-writer` - Technical documentation and guides
+   - `prompt-engineer` - AI prompt engineering and optimization
+
+2. **Agent Library** (`~/.claude/agents-library/`) - Activated per-project:
+   - Organized by category (backend, frontend, mobile, infrastructure, planning, etc.)
+   - Not loaded unless explicitly activated for a project
+
+3. **Project-Specific Agents** (`.claude/agents/`) - Active for current project:
+   - Copied from library using `/setup-agents` command
+   - Override global agents when present
+
+### Setting Up Project Agents
+
+Use the `/setup-agents` slash command to activate relevant agents:
+
+```bash
+# Auto-detect project type and activate appropriate agents
+/setup-agents auto
+
+# Interactive mode with questions
+/setup-agents
+
+# Manually select specific agents
+/setup-agents go-backend-dev database-expert
+
+# List all available agents
+/setup-agents list
+
+# Sync project agents with library (update to latest)
+/setup-agents sync
+```
+
+### Available Specialized Agents
+
+**Backend** (`~/.claude/agents-library/backend/`):
 - `go-backend-dev` - Go service development
+- `database-expert` - Database design and optimization
 
-**Frontend:**
+**Frontend** (`~/.claude/agents-library/frontend/`):
 - `shadcn-ui-builder` - React/Next.js with shadcn/ui components
 
-**Mobile:**
+**Mobile** (`~/.claude/agents-library/mobile/`):
 - `android-kotlin-expert` - Android app development
-- `ios-expert-developer` - iOS app development
+- `ios-expert-reviewer` - iOS app code review
 
-**Documentation:**
-- `technical-docs-writer` - Technical documentation and guides
-- `prompt-engineer` - AI prompt engineering and optimization
-
-**Other Specializations:**
-- `code-reviewer` - Code review and quality analysis
+**Infrastructure** (`~/.claude/agents-library/infrastructure/`):
 - `network-infrastructure-expert` - Network and infrastructure
+- `sysadmin-expert` - System administration and DevOps
+
+**Planning** (`~/.claude/agents-library/planning/`):
+- `product-requirements-architect` - PRD creation and feature planning
+- `strategic-architect` - System architecture design
+- `agent-orchestrator` - Agent coordination and routing
+
+**Data** (`~/.claude/agents-library/data/`):
+- `data-analyst` - Database queries and data analysis
+
+**Automation** (`~/.claude/agents-library/automation/`):
+- `autonomous-executor` - Long-running autonomous tasks
+
+**Specialized** (`~/.claude/agents-library/specialized/`):
+- `music-theory-expert` - Music theory and composition
+- `geo-aeo-strategist` - AI content optimization (GEO/AEO)
 
 ## Service Management
 
