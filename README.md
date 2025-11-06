@@ -14,62 +14,58 @@ A comprehensive development environment featuring zsh with Powerlevel10k, Neovim
 - **Security**: Age encryption for sensitive files (.env, .pgpass)
 - **Cross-Platform**: Conditional configuration for macOS and Linux with architecture detection
 
-## Prerequisites
+## Quick Start
 
-### Essential Tools
+### Prerequisites
 
-- [Chezmoi](https://www.chezmoi.io/install/) - Dotfile manager
-- [Age](https://github.com/FiloSottile/age) - Encryption tool for sensitive files
-- [1Password CLI](https://developer.1password.com/docs/cli/) (optional) - For easier key retrieval
+Install chezmoi and age before proceeding:
 
-### macOS
-
+**macOS**
 ```bash
 brew install chezmoi age
 ```
 
-### Linux (Arch)
-
+**Linux (Arch)**
 ```bash
 sudo pacman -S chezmoi age
 ```
 
 For other distributions, see [chezmoi installation](https://www.chezmoi.io/install/) and [age installation](https://github.com/FiloSottile/age#installation).
 
-## Quick Start
+### Installation
 
-### First-Time Setup
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/alexrabarts/dotfiles.git ~/.local/share/chezmoi
+   cd ~/.local/share/chezmoi
+   ```
 
-1. Clone this repository to chezmoi's source directory:
-```bash
-git clone https://github.com/alexrabarts/dotfiles.git ~/.local/share/chezmoi
-cd ~/.local/share/chezmoi
-```
+2. **Run the installer**
+   ```bash
+   make install
+   ```
 
-2. Run the installation:
-```bash
-make install
-```
+   This will:
+   - Verify prerequisites are installed
+   - Prompt for your age encryption key (retrieve from 1Password or backup)
+   - Apply all dotfiles to your home directory
+   - Decrypt and configure encrypted files
 
-This will:
-- Check that chezmoi and age are installed
-- Prompt for your age encryption key (from 1Password)
-- Apply all dotfiles to your home directory
-- Set up encrypted files
+3. **Install packages** (optional but recommended)
+   ```bash
+   make install-packages
+   ```
 
-3. Install packages (optional):
-```bash
-make install-packages
-```
+   This installs all tools from `Brewfile` (macOS) or `pkglist.txt` (Linux).
 
-This installs all tools from `Brewfile` (macOS) or `pkglist.txt` (Linux).
+4. **Restart your shell**
+   ```bash
+   exec zsh
+   ```
 
-### Alternative Setup Methods
+### Alternative Installation Methods
 
-#### With 1Password CLI
-
-If you have 1Password CLI configured and authenticated:
-
+**With 1Password CLI** (if configured and authenticated)
 ```bash
 mkdir -p ~/.config/age
 op document get "age-chezmoi-key" > ~/.config/age/key.txt
@@ -78,18 +74,18 @@ cd ~/.local/share/chezmoi
 chezmoi apply
 ```
 
-#### Manual Setup
-
+**Manual Setup**
 ```bash
-# 1. Clone repository
+# Clone repository
 git clone https://github.com/alexrabarts/dotfiles.git ~/.local/share/chezmoi
 
-# 2. Setup age key manually
+# Setup age key manually
 mkdir -p ~/.config/age
-# Paste your age key into ~/.config/age/key.txt
+# Paste your age private key (AGE-SECRET-KEY-...) into:
+vim ~/.config/age/key.txt
 chmod 600 ~/.config/age/key.txt
 
-# 3. Apply dotfiles
+# Apply dotfiles
 cd ~/.local/share/chezmoi
 chezmoi apply
 ```
@@ -98,27 +94,30 @@ chezmoi apply
 
 ### Shell Configuration
 
-- **Zsh** with Powerlevel10k prompt theme
+**Zsh** with Powerlevel10k prompt theme
 - **Zinit** plugin manager with syntax highlighting and completions
 - **Zoxide** for smart directory jumping (aliased to `cd`)
 - **Atuin** for searchable shell history
 - PATH management with duplicate prevention
 - Cross-platform conditionals for macOS and Linux
+- Chezmoi aliases: `cz`, `cze`, `czd`, `czap`, `ca`
 
 ### Neovim Configuration
 
-- **LazyVim** distribution with sensible defaults
-- Language support for Go, TypeScript, Lua, Python, and more
-- Treesitter for advanced syntax highlighting
-- LSP configurations for multiple languages
-- Catppuccin Mocha colorscheme
-- Git integration with Neogit and Gitsigns
-- Custom keymaps and options
+**LazyVim** distribution with sensible defaults
+- Language support: Go, TypeScript, Lua, Python, Bash, Rust
+- **Treesitter** for advanced syntax highlighting
+- **LSP** configurations with Mason auto-installer
+- **Catppuccin Mocha** colorscheme
+- Git integration: Neogit and Gitsigns
+- Custom keymaps with `<Space>` leader key
+
+See [dot_config/nvim/README.md](dot_config/nvim/README.md) for details.
 
 ### Tmux Configuration
 
-- **Catppuccin Mocha** theme with custom status line
-- Custom status modules showing:
+**Catppuccin Mocha** theme with custom status line
+- **Custom status modules**:
   - Git branch and status
   - System load and CPU usage
   - Memory usage
@@ -127,19 +126,30 @@ chezmoi apply
 - Mouse support with smart scrolling
 - Vi-mode keybindings for copy mode
 - Window/pane navigation with Option/Alt keys
-- Prefix key: `Ctrl+Space`
+- **Prefix key**: `Ctrl+Space`
 
-### Utility Scripts (~/bin/)
+See [dot_config/tmux/CLAUDE.md](dot_config/tmux/CLAUDE.md) for details.
+
+### Utility Scripts
+
+Located in `~/bin/` after installation:
 
 - **go-install**: Install specific Go versions from official releases
   - Auto-detects OS and architecture
   - Usage: `go-install 1.21.5`
+
 - **pg**: Smart PostgreSQL connection manager
   - Lists databases from `~/.pgpass`
   - Quick connect: `pg database-name`
   - Includes zsh tab completion
+
 - **kbd-backlight-***: Keyboard backlight controls for MacBooks on Linux
+  - Auto-dim on inactivity
+  - Manual brightness controls
+
 - **capslock-to-control**: Remap Caps Lock to Control (macOS)
+
+See [bin/CLAUDE.md](bin/CLAUDE.md) for complete documentation.
 
 ### Package Lists
 
@@ -153,9 +163,9 @@ chezmoi apply
 - **udev rules**: MTP device access
 - **T2 chip support**: Keyboard and suspend fixes for MacBooks running Linux
 
-## Usage
+## Daily Usage
 
-### Daily Workflow
+### Common Commands
 
 ```bash
 # Edit a managed file (opens in $EDITOR, prompts to apply)
@@ -201,32 +211,31 @@ make setup-age            # Setup age encryption only
 make init-chezmoi         # Initialize chezmoi with this repo (for development)
 ```
 
-### Encrypted Files
+## Working with Encrypted Files
 
-Files matching `private_*` or `encrypted_*` patterns are encrypted with age. Current encrypted files:
+Files matching `private_*` or `encrypted_*` patterns are encrypted with age.
 
+**Current encrypted files:**
 - `~/.env` - Environment variables
 - `~/.pgpass` - PostgreSQL connection credentials
 
-To add a new encrypted file:
-
+**Add a new encrypted file:**
 ```bash
 chezmoi add --encrypt ~/.sensitive-file
 ```
 
-To edit an encrypted file:
-
+**Edit an encrypted file:**
 ```bash
 chezmoi edit ~/.env
 ```
 
 Chezmoi automatically decrypts on edit and re-encrypts on apply.
 
-### Working with Templates
+## Working with Templates
 
 Files ending in `.tmpl` are Go templates processed by chezmoi. They support conditional logic based on OS and architecture:
 
-```bash
+```go
 {{- if eq .chezmoi.os "darwin" -}}
 # macOS-specific configuration
 {{- end }}
@@ -236,14 +245,12 @@ Files ending in `.tmpl` are Go templates processed by chezmoi. They support cond
 {{- end }}
 ```
 
-Test template rendering:
-
+**Test template rendering:**
 ```bash
 chezmoi execute-template < dot_zshrc.tmpl
 ```
 
-Preview rendered output:
-
+**Preview rendered output:**
 ```bash
 chezmoi cat ~/.zshrc
 ```
@@ -252,13 +259,15 @@ chezmoi cat ~/.zshrc
 
 ### macOS (Homebrew)
 
-Packages are defined in `Brewfile`. To update the package list:
+Packages are defined in `Brewfile`.
 
+**Export currently installed packages:**
 ```bash
-# Export currently installed packages
 brew bundle dump --force --describe
+```
 
-# Install packages from Brewfile
+**Install packages from Brewfile:**
+```bash
 make install-packages
 # or
 brew bundle install
@@ -266,18 +275,54 @@ brew bundle install
 
 ### Linux (Arch)
 
-Packages are listed in `dot_config/pkglist.txt`. To update:
+Packages are listed in `dot_config/pkglist.txt`.
 
+**Export currently installed packages:**
 ```bash
-# Export currently installed packages
 pacman -Qqe > ~/.config/pkglist.txt
 chezmoi add ~/.config/pkglist.txt
+```
 
-# Install packages from list
+**Install packages from list:**
+```bash
 make install-packages
 # or
 sudo pacman -S --needed - < ~/.config/pkglist.txt
 ```
+
+## Repository Structure
+
+```
+.
+├── bin/                          # Utility scripts (→ ~/bin/)
+├── dot_config/                   # Config files (→ ~/.config/)
+│   ├── nvim/                     # Neovim configuration
+│   ├── tmux/                     # Tmux configuration
+│   ├── alacritty/                # Alacritty terminal config
+│   ├── ghostty/                  # Ghostty terminal config
+│   └── hypr/                     # Hyprland config
+├── dot_ssh/                      # SSH configuration
+├── private_dot_claude/           # Claude AI agent configurations
+├── Brewfile                      # macOS packages (Homebrew)
+├── dot_config/pkglist.txt        # Linux packages (pacman)
+├── dot_zshrc.tmpl                # Main zsh config (templated)
+├── dot_zprofile                  # Zsh login config
+├── Makefile                      # Setup automation
+└── run_once_*.sh                 # One-time setup scripts
+```
+
+### File Naming Conventions
+
+Chezmoi uses special prefixes to determine file behavior:
+
+- `dot_` → `.` (e.g., `dot_zshrc` → `~/.zshrc`)
+- `private_` → Encrypted with age
+- `encrypted_` → Encrypted with age
+- `.tmpl` → Processed as Go template
+- `executable_` → Made executable
+- `run_once_` → Run once during `chezmoi apply`
+- `run_onchange_` → Run when file content changes
+- `symlink_` → Created as symlink
 
 ## Troubleshooting
 
@@ -293,7 +338,7 @@ Your age private key is missing or incorrect.
 op document get "age-chezmoi-key" > ~/.config/age/key.txt
 chmod 600 ~/.config/age/key.txt
 
-# Or manually paste key into ~/.config/age/key.txt
+# Or manually paste key
 mkdir -p ~/.config/age
 # Paste AGE-SECRET-KEY-... into the file
 chmod 600 ~/.config/age/key.txt
@@ -308,7 +353,7 @@ chmod 600 ~/.config/age/key.txt
 # Check what would change
 chezmoi diff
 
-# Apply with verbose output to see what's happening
+# Apply with verbose output
 chezmoi apply -v
 
 # Check chezmoi status
@@ -390,9 +435,9 @@ exec zsh
 which <command>
 ```
 
-### macOS-Specific Issues
+### Platform-Specific Issues
 
-**Homebrew not in PATH**
+**macOS - Homebrew not in PATH**
 
 Ensure `~/.zprofile` is being sourced (login shells):
 ```bash
@@ -400,16 +445,14 @@ cat ~/.zprofile
 # Should contain: eval "$(/opt/homebrew/bin/brew shellenv)"
 ```
 
-**Caps Lock remap not working**
+**macOS - Caps Lock remap not working**
 
 The `capslock-to-control` script may need manual execution:
 ```bash
 ~/bin/capslock-to-control
 ```
 
-### Linux-Specific Issues
-
-**Keyboard remapping not working**
+**Linux - Keyboard remapping not working**
 
 Check keyd service status:
 ```bash
@@ -419,7 +462,7 @@ sudo systemctl status keyd
 sudo systemctl restart keyd
 ```
 
-**Locale issues**
+**Linux - Locale issues**
 
 Generate the en_GB.UTF-8 locale:
 ```bash
@@ -428,49 +471,16 @@ sudo locale-gen en_GB.UTF-8
 
 ## Documentation
 
+- **README.md** - This file: setup, features, and usage guide
+- **CHANGELOG.md** - Version history and release notes
 - **CLAUDE.md** - Detailed documentation for AI agents (architecture, workflows, patterns)
-- **SYSTEM_FILES.md** - Documentation of system-level files and their purposes
 - **bin/CLAUDE.md** - Documentation of utility scripts
 - **dot_config/tmux/CLAUDE.md** - Tmux configuration details
 - **dot_config/nvim/README.md** - Neovim setup guide
 
 ## Development
 
-### Repository Structure
-
-```
-.
-├── bin/                          # Utility scripts (→ ~/bin/)
-├── dot_config/                   # Config files (→ ~/.config/)
-│   ├── nvim/                     # Neovim configuration
-│   ├── tmux/                     # Tmux configuration
-│   ├── alacritty/                # Alacritty terminal config
-│   ├── ghostty/                  # Ghostty terminal config
-│   └── hypr/                     # Hyprland config
-├── dot_ssh/                      # SSH configuration
-├── private_dot_claude/           # Claude AI agent configurations
-├── Brewfile                      # macOS packages (Homebrew)
-├── dot_config/pkglist.txt        # Linux packages (pacman)
-├── dot_zshrc.tmpl                # Main zsh config (templated)
-├── dot_zprofile                  # Zsh login config
-├── Makefile                      # Setup automation
-└── run_once_*.sh                 # One-time setup scripts
-```
-
-### File Naming Conventions
-
-Chezmoi uses special prefixes to determine file behavior:
-
-- `dot_` → `.` (e.g., `dot_zshrc` → `~/.zshrc`)
-- `private_` → Encrypted with age
-- `encrypted_` → Encrypted with age
-- `.tmpl` → Processed as Go template
-- `executable_` → Made executable
-- `run_once_` → Run once during `chezmoi apply`
-- `run_onchange_` → Run when file content changes
-- `symlink_` → Created as symlink
-
-### Making Changes to This Repository
+### Making Changes
 
 ```bash
 # Work directly in the source directory
