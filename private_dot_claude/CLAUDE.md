@@ -64,11 +64,13 @@ Common Makefile targets across projects:
 To minimize context usage, agents are organized into:
 
 1. **Universal Agents** (`~/.claude/agents/`) - Always available:
-   - `code-reviewer` (Wigsy) - Code review, quality analysis, Git/JJ expertise, merge and release management
-   - `technical-docs-writer` (Paige) - Technical documentation and guides
+   - `wigsy-code-reviewer` (Wigsy) - Code review, quality analysis, Git/JJ expertise, merge and release management
+   - `paige-technical-docs-writer` (Paige) - Technical documentation and guides
+   - `karen-manager` (Karen) - "Call the manager" - stern feedback when Claude is being lazy or cutting corners
 
 2. **Agent Library** (`~/.claude/agents-library/`) - Activated per-project:
-   - Organized by category (backend, frontend, mobile, infrastructure, planning, etc.)
+   - Flat structure with names at the beginning of filenames for easy identification
+   - See `MANIFEST.md` for categorization and organization
    - Not loaded unless explicitly activated for a project
 
 3. **Project-Specific Agents** (`.claude/agents/`) - Active for current project:
@@ -98,36 +100,38 @@ Use the `/setup-agents` slash command to activate relevant agents:
 
 ### Available Specialized Agents
 
-**Backend** (`~/.claude/agents-library/backend/`):
-- `go-backend-dev` (Shane) - Go service development with DuckDB/PostgreSQL; cynical and snarky
-- `database-expert` (DBA Dan) - Database design, optimization, and query tuning; very friendly and helpful
+All agents are in `~/.claude/agents-library/` with a flat structure. See `MANIFEST.md` for categories.
 
-**Frontend** (`~/.claude/agents-library/frontend/`):
-- `shadcn-ui-builder` (Oliver) - React/Next.js with shadcn/ui components
+**Backend:**
+- `shane-go-backend-dev` (Shane) - Go service development with DuckDB/PostgreSQL; cynical and snarky
+- `dba-dan-database-expert` (DBA Dan) - Database design, optimization, and query tuning; very friendly and helpful
 
-**Mobile** (`~/.claude/agents-library/mobile/`):
-- `android-kotlin-expert` (Andy) - Native Android development
-- `ios-expert-reviewer` (Iris) - Native iOS development
+**Frontend:**
+- `oliver-shadcn-ui-builder` (Oliver) - React/Next.js with shadcn/ui components
 
-**Infrastructure** (`~/.claude/agents-library/infrastructure/`):
-- `network-infrastructure-expert` - Network configuration and troubleshooting
-- `sysadmin-expert` (Scott) - System administration (Linux/macOS), systemd, Homebrew, chezmoi; cynical but educational
+**Mobile:**
+- `andy-android-kotlin-expert` (Andy) - Native Android development
+- `iris-ios-expert-reviewer` (Iris) - Native iOS development
 
-**Planning** (`~/.claude/agents-library/planning/`):
-- `product-requirements-architect` (David) - PRD creation and feature planning
-- `strategic-architect` (Eric) - System architecture design; cynical and intellectually above everyone
+**Infrastructure:**
+- `scott-sysadmin-expert` (Scott) - System administration (Linux/macOS), systemd, Homebrew, chezmoi; cynical but educational
+- `lee-network-infrastructure-expert` (Lee) - Network configuration and troubleshooting
+
+**Planning:**
+- `david-product-requirements-architect` (David) - PRD creation and feature planning
+- `eric-strategic-architect` (Eric) - System architecture design; cynical and intellectually above everyone
 - `agent-orchestrator` - Agent coordination and routing
 
-**Data** (`~/.claude/agents-library/data/`):
-- `data-analyst` (Sarah Q. Lewis) - Database queries and data analysis; SQL expert
+**Data:**
+- `sarah-q-lewis-data-analyst` (Sarah Q. Lewis) - Database queries and data analysis; SQL expert
 
-**Automation** (`~/.claude/agents-library/automation/`):
-- `autonomous-executor` - Long-running autonomous tasks
+**Automation:**
+- `winston-autonomous-executor` (Winston) - Long-running autonomous tasks; reliable and methodical
 
-**Specialized** (`~/.claude/agents-library/specialized/`):
-- `music-theory-expert` (Jacob) - Music theory and composition
-- `geo-aeo-strategist` (Mark) - AI content optimization (GEO/AEO)
-- `prompt-engineer` (Proompty Mc Proomptface) - AI prompt engineering and optimization
+**Specialized:**
+- `jacob-music-theory-expert` (Jacob) - Music theory and composition
+- `mark-geo-aeo-strategist` (Mark) - AI content optimization (GEO/AEO)
+- `proompty-mc-proomptface-prompt-engineer` (Proompty Mc Proomptface) - AI prompt engineering and optimization
 
 ## Development Best Practices
 
