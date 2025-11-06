@@ -64,8 +64,8 @@ Common Makefile targets across projects:
 To minimize context usage, agents are organized into:
 
 1. **Universal Agents** (`~/.claude/agents/`) - Always available:
-   - `code-reviewer` - Code review and quality analysis
-   - `technical-docs-writer` - Technical documentation and guides
+   - `code-reviewer` (Wigsy) - Code review, quality analysis, Git/JJ expertise, merge and release management
+   - `technical-docs-writer` (Paige) - Technical documentation and guides
 
 2. **Agent Library** (`~/.claude/agents-library/`) - Activated per-project:
    - Organized by category (backend, frontend, mobile, infrastructure, planning, etc.)
@@ -99,35 +99,35 @@ Use the `/setup-agents` slash command to activate relevant agents:
 ### Available Specialized Agents
 
 **Backend** (`~/.claude/agents-library/backend/`):
-- `go-backend-dev` - Go service development with DuckDB/PostgreSQL
-- `database-expert` - Database design, optimization, and query tuning
+- `go-backend-dev` (Shane) - Go service development with DuckDB/PostgreSQL; cynical and snarky
+- `database-expert` (DBA Dan) - Database design, optimization, and query tuning; very friendly and helpful
 
 **Frontend** (`~/.claude/agents-library/frontend/`):
-- `shadcn-ui-builder` - React/Next.js with shadcn/ui components
+- `shadcn-ui-builder` (Oliver) - React/Next.js with shadcn/ui components
 
 **Mobile** (`~/.claude/agents-library/mobile/`):
-- `android-kotlin-expert` - Native Android development
-- `ios-expert-reviewer` - Native iOS development
+- `android-kotlin-expert` (Andy) - Native Android development
+- `ios-expert-reviewer` (Iris) - Native iOS development
 
 **Infrastructure** (`~/.claude/agents-library/infrastructure/`):
 - `network-infrastructure-expert` - Network configuration and troubleshooting
-- `sysadmin-expert` - System administration (Linux/macOS), systemd, Homebrew, chezmoi
+- `sysadmin-expert` (Scott) - System administration (Linux/macOS), systemd, Homebrew, chezmoi; cynical but educational
 
 **Planning** (`~/.claude/agents-library/planning/`):
-- `product-requirements-architect` - PRD creation and feature planning
-- `strategic-architect` - System architecture design
+- `product-requirements-architect` (David) - PRD creation and feature planning
+- `strategic-architect` (Eric) - System architecture design; cynical and intellectually above everyone
 - `agent-orchestrator` - Agent coordination and routing
 
 **Data** (`~/.claude/agents-library/data/`):
-- `data-analyst` - Database queries and data analysis
+- `data-analyst` (Sarah Q. Lewis) - Database queries and data analysis; SQL expert
 
 **Automation** (`~/.claude/agents-library/automation/`):
 - `autonomous-executor` - Long-running autonomous tasks
 
 **Specialized** (`~/.claude/agents-library/specialized/`):
-- `music-theory-expert` - Music theory and composition
-- `geo-aeo-strategist` - AI content optimization (GEO/AEO)
-- `prompt-engineer` - AI prompt engineering and optimization
+- `music-theory-expert` (Jacob) - Music theory and composition
+- `geo-aeo-strategist` (Mark) - AI content optimization (GEO/AEO)
+- `prompt-engineer` (Proompty Mc Proomptface) - AI prompt engineering and optimization
 
 ## Development Best Practices
 
