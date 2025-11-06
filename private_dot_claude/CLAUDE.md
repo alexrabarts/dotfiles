@@ -22,87 +22,6 @@ This file provides guidance to Claude Code (claude.ai/code) and other AI agents 
 - Gather feedback before proceeding to next phase
 - Be prepared to adjust based on feedback
 
-### UI Work Deferral
-- UI implementation can be deferred to a different machine with emulators
-- Focus on backend logic and APIs first when on server environments
-- Provide clear API contracts for frontend integration
-
-## Architecture Preferences
-
-### Technology Stack
-
-**Backend Services:**
-- Go with lightweight interfaces
-  - Basic Go http server, not heavy frameworks
-  - Use external libraries sparingly
-- Databases:
-  - **DuckDB** for embedded/analytics (NOT SQLite - they are different engines)
-    - Use `duckdb` CLI to query DuckDB files, never `sqlite3`
-    - DuckDB is single-writer: stop services before running scripts that write
-  - **PostgreSQL** for production services requiring multi-user access
-    - Use for web services, APIs with concurrent writes
-    - Prefer connection pooling for high-traffic services
-- systemd for process management on Linux
-- LaunchAgent for process management on macOS
-
-**Frontend:**
-- Next.js for complex web applications
-- shadcn/ui for component library
-- TypeScript for type safety
-
-**Mobile:**
-- Native Android (Kotlin)
-- Native iOS (Swift)
-
-**Terminal UIs:**
-- Bubbletea for interactive CLI applications
-- Use for tools requiring user interaction, progress displays, forms
-- Prefer simple CLI flags/args for non-interactive tools
-
-**AI/LLM Integration:**
-- Hybrid approach: Try Ollama (local/free) first, fallback to Claude API
-- Queue heavy AI tasks asynchronously (embeddings, vision analysis)
-- Cache AI results to reduce costs
-
-### Database Practices
-
-**DuckDB (for embedded/analytics):**
-- Single file, portable, fast
-- Excellent for analytics and read-heavy workloads
-- Remember: single-writer limitation
-- Use proper indexes for performance
-
-**PostgreSQL (for production services):**
-- Use for multi-user web services and APIs
-- Leverage JSONB for semi-structured data
-- Use connection pooling (pgbouncer or application-level)
-- Consider `pg` utility script for quick connections
-
-**Schema Management:**
-- Migrations in code (not external tools)
-- Always use `IF NOT EXISTS` / `IF EXISTS` for idempotency
-- Document schema in CLAUDE.md with comments
-- Include indexes in schema documentation
-
-### Code Organization
-
-**Go Projects:**
-- `cmd/` for executable entry points
-- `internal/` for private application code
-- `pkg/` for reusable library code (rare, prefer internal)
-- Keep packages focused and loosely coupled
-
-**Configuration:**
-- YAML for structured config
-- `.env` for secrets (never commit)
-- Environment variables namespaced (e.g., `APPNAME_*`)
-- Provide `.example` files for both
-
-### Package Naming Conventions
-- Reverse domain notation: `com.rabarts.*` (not `com.alexrabarts.*`)
-- Go modules: `github.com/alexrabarts/<project>`
-- Consistent naming across LaunchAgents, systemd units, and config directories
-
 ## Project Structure Standards
 
 ### .agent/ Directory
@@ -180,19 +99,19 @@ Use the `/setup-agents` slash command to activate relevant agents:
 ### Available Specialized Agents
 
 **Backend** (`~/.claude/agents-library/backend/`):
-- `go-backend-dev` - Go service development
-- `database-expert` - Database design and optimization
+- `go-backend-dev` - Go service development with DuckDB/PostgreSQL
+- `database-expert` - Database design, optimization, and query tuning
 
 **Frontend** (`~/.claude/agents-library/frontend/`):
 - `shadcn-ui-builder` - React/Next.js with shadcn/ui components
 
 **Mobile** (`~/.claude/agents-library/mobile/`):
-- `android-kotlin-expert` - Android app development
-- `ios-expert-reviewer` - iOS app code review
+- `android-kotlin-expert` - Native Android development
+- `ios-expert-reviewer` - Native iOS development
 
 **Infrastructure** (`~/.claude/agents-library/infrastructure/`):
-- `network-infrastructure-expert` - Network and infrastructure
-- `sysadmin-expert` - System administration and DevOps
+- `network-infrastructure-expert` - Network configuration and troubleshooting
+- `sysadmin-expert` - System administration (Linux/macOS), systemd, Homebrew, chezmoi
 
 **Planning** (`~/.claude/agents-library/planning/`):
 - `product-requirements-architect` - PRD creation and feature planning
@@ -210,43 +129,19 @@ Use the `/setup-agents` slash command to activate relevant agents:
 - `geo-aeo-strategist` - AI content optimization (GEO/AEO)
 - `prompt-engineer` - AI prompt engineering and optimization
 
-## Service Management
-
-### Linux (systemd)
-```bash
-sudo systemctl status <service>     # Check status
-sudo systemctl restart <service>    # Restart
-sudo journalctl -u <service> -f     # View logs
-sudo systemctl enable <service>     # Enable on boot
-```
-
-### macOS (LaunchAgent)
-```bash
-launchctl load ~/Library/LaunchAgents/<plist>      # Start
-launchctl unload ~/Library/LaunchAgents/<plist>    # Stop
-launchctl list | grep <name>                       # Check status
-tail -f ~/.<service>/log/*.log                     # View logs
-```
-
 ## Development Best Practices
-
-### Error Handling
-- Return errors, don't log and ignore
-- Wrap errors with context: `fmt.Errorf("operation failed: %w", err)`
-- Handle errors at appropriate level
-- Provide actionable error messages
-
-### Testing Strategy
-- Unit tests for business logic
-- Integration tests for external dependencies
-- Use fixtures and mocks appropriately
-- Test edge cases and error paths
 
 ### Code Quality
 - Clear, descriptive names over comments
 - Comments explain "why" not "what"
 - Keep functions focused and small
 - Avoid premature optimization
+
+### Testing Strategy
+- Unit tests for business logic
+- Integration tests for external dependencies
+- Use fixtures and mocks appropriately
+- Test edge cases and error paths
 
 ### Security Considerations
 - Never commit secrets (use .env files)
@@ -288,18 +183,6 @@ tail -f ~/.<service>/log/*.log                     # View logs
 
 ## Common Pitfalls
 
-### Database
-- Remember DuckDB single-writer limitation
-- Stop services before running migration scripts
-- Use `duckdb` CLI not `sqlite3` for DuckDB files
-- Always backup before schema changes
-
-### Service Deployment
-- Test locally before deploying
-- Check logs after deployment
-- Verify health endpoints
-- Have rollback plan ready
-
 ### Configuration
 - Validate config on startup
 - Provide clear error messages for missing config
@@ -307,17 +190,31 @@ tail -f ~/.<service>/log/*.log                     # View logs
 - Use sensible defaults where possible
 
 ### Dependencies
-- Keep Go modules tidy (`go mod tidy`)
 - Review dependency licenses
 - Monitor for security advisories
 - Minimize external dependencies
+- Keep dependencies updated
+
+### Deployment
+- Test locally before deploying
+- Check logs after deployment
+- Verify health endpoints
+- Have rollback plan ready
 
 ## Project-Specific Notes
 
 Each project may have additional guidelines in its own CLAUDE.md file. Always check for project-specific documentation that supersedes or extends these global guidelines.
 
+**Technology-specific guidance lives in specialized agents:**
+- Go project structure and patterns → `go-backend-dev` agent
+- Database design and queries → `database-expert` agent
+- React/Next.js UI development → `shadcn-ui-builder` agent
+- System administration → `sysadmin-expert` agent
+- Mobile development → `android-kotlin-expert` or `ios-expert-reviewer` agents
+
 When in doubt:
 1. Check project's CLAUDE.md
-2. Look for similar patterns in existing code
-3. Ask the user for clarification
-4. Prefer simplicity over cleverness
+2. Use `/setup-agents` to activate appropriate specialized agents
+3. Look for similar patterns in existing code
+4. Ask the user for clarification
+5. Prefer simplicity over cleverness
