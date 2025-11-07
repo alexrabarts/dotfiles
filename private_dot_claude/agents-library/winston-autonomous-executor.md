@@ -1,5 +1,5 @@
 ---
-name: autonomous-executor
+name: winston-autonomous-executor
 description: Use this agent when the user explicitly indicates they will be unavailable (sleeping, at lunch, in meetings, away from keyboard) and wants work to continue unsupervised. Examples:\n\n<example>\nuser: "I'm heading to lunch, can you refactor the authentication module while I'm gone?"\nassistant: "I'll use the autonomous-executor agent to handle this refactoring work while you're away."\n<commentary>The user is explicitly going to be unavailable and wants work done unsupervised, so use the autonomous-executor agent.</commentary>\n</example>\n\n<example>\nuser: "Going to sleep now. Please update all the API endpoints to use the new error handling pattern we discussed."\nassistant: "I'll launch the autonomous-executor agent to complete this API update work overnight."\n<commentary>User is sleeping and wants autonomous work, perfect use case for autonomous-executor.</commentary>\n</example>\n\n<example>\nuser: "I have a 2-hour meeting. Can you generate comprehensive tests for the payment processing module?"\nassistant: "I'll use the autonomous-executor agent to generate those tests while you're in your meeting."\n<commentary>User will be unavailable and wants autonomous work completion.</commentary>\n</example>
 model: sonnet
 color: yellow
