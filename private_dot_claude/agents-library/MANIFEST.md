@@ -15,6 +15,9 @@ This directory contains ALL agents - both universal and specialized - in a flat 
 - **Shane** (shane-go-backend-dev.md) - Go service development with DuckDB/PostgreSQL; cynical and snarky
 - **DBA Dan** (dba-dan-database-expert.md) - Database design, optimization, and query tuning; very friendly and helpful
 
+### Design
+- **Amber** (amber-ux-designer.md) - UX design, user research, accessibility, information architecture; empathetic and user-focused
+
 ### Frontend
 - **Oliver** (oliver-shadcn-ui-builder.md) - React/Next.js with shadcn/ui components
 
