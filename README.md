@@ -50,6 +50,7 @@ For other distributions, see [chezmoi installation](https://www.chezmoi.io/insta
    - Prompt for your age encryption key (retrieve from 1Password or backup)
    - Apply all dotfiles to your home directory
    - Decrypt and configure encrypted files
+   - Install tmux plugins via TPM
 
 3. **Install packages** (optional but recommended)
    ```bash
@@ -204,8 +205,9 @@ ta      # tmux attach
 
 ```bash
 make help                 # Show all available targets
-make install              # Full setup (check prereqs, setup age, apply dotfiles)
+make install              # Full setup (check prereqs, setup age, apply dotfiles, tmux plugins)
 make install-packages     # Install packages (Homebrew or pacman)
+make install-tmux-plugins # Install tmux plugins via TPM
 make check-prerequisites  # Verify chezmoi and age are installed
 make setup-age            # Setup age encryption only
 make init-chezmoi         # Initialize chezmoi with this repo (for development)
@@ -388,13 +390,17 @@ zsh -n ~/.zshrc
 
 **Solution:**
 ```bash
-# Install TPM (Tmux Plugin Manager)
-git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+# Install tmux plugins automatically
+make install-tmux-plugins
 
-# Inside tmux, install plugins
+# Or manually install TPM and plugins
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+~/.tmux/plugins/tpm/bin/install_plugins
+
+# Or inside tmux, install plugins interactively
 # Press: Ctrl+Space then Shift+I (capital I)
 
-# Or reload tmux configuration
+# Reload tmux configuration
 tmux source ~/.config/tmux/tmux.conf
 ```
 

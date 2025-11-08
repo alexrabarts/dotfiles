@@ -1,4 +1,4 @@
-.PHONY: install setup-age check-prerequisites install-packages init-chezmoi help
+.PHONY: install setup-age check-prerequisites install-packages init-chezmoi install-tmux-plugins help
 
 # Detect OS
 UNAME_S := $(shell uname -s)
@@ -21,6 +21,7 @@ help:
 	@echo "  make init-chezmoi         - Initialize chezmoi with this repo as source"
 	@echo "  make setup-age            - Setup age encryption only"
 	@echo "  make install-packages     - Install all packages"
+	@echo "  make install-tmux-plugins - Install tmux plugins via TPM"
 	@echo "  make check-prerequisites  - Check if required tools are installed"
 	@echo ""
 
@@ -54,10 +55,25 @@ setup-age: check-prerequisites
 		echo "✓ Age key already exists at ~/.config/age/key.txt"; \
 	fi
 
+install-tmux-plugins:
+	@echo "Installing tmux plugins..."
+	@mkdir -p ~/.tmux/plugins
+	@if [ ! -d ~/.tmux/plugins/tpm ]; then \
+		echo "Installing TPM (Tmux Plugin Manager)..."; \
+		git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm; \
+	else \
+		echo "✓ TPM already installed"; \
+	fi
+	@echo "Installing tmux plugins via TPM..."
+	@~/.tmux/plugins/tpm/bin/install_plugins
+	@echo "✓ Tmux plugins installed"
+
 install: check-prerequisites setup-age
 	@echo ""
 	@echo "Applying dotfiles with chezmoi..."
 	@chezmoi apply -v
+	@echo ""
+	@$(MAKE) install-tmux-plugins
 	@echo ""
 	@echo "✓ Setup complete! Restart your shell or run: source ~/.zshrc"
 
