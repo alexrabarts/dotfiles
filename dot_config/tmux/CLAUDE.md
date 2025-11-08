@@ -96,6 +96,54 @@ All splits open in the current working directory.
 - Buffer size: 10,000 lines
 - Search with `/` (forward) or `?` (backward)
 
+### Clipboard Support (OSC52 over SSH)
+
+**Overview**:
+The tmux configuration uses OSC52 escape sequences for clipboard support, which allows copying to your local clipboard even when connected to a remote machine via SSH. This works without requiring any clipboard tools (xsel, xclip, pbcopy) on the remote system.
+
+**How It Works**:
+1. When you copy text (via mouse selection or `y` key), tmux pipes it to `~/.config/tmux/scripts/osc52-copy.sh`
+2. The script encodes the text in base64 and wraps it in an OSC52 escape sequence
+3. The escape sequence is sent through the SSH connection to your local terminal
+4. Your local terminal (Ghostty, iTerm2, Alacritty, etc.) receives the OSC52 sequence and copies the text to your system clipboard
+
+**Supported Terminals**:
+- Ghostty (full support)
+- iTerm2 (macOS)
+- Alacritty
+- WezTerm
+- kitty
+- Windows Terminal
+- Most modern terminals
+
+**Copy Methods**:
+- **Mouse selection**: Click and drag to select text - automatically copies on release
+- **Keyboard in copy mode**: Press `y` after selecting text with `v`
+- **Double-click**: Selects and copies a word
+- **Triple-click**: Selects and copies a line
+
+**Limitations**:
+- Maximum clipboard size: 100KB (most terminals support this limit)
+- Requires terminal to support OSC52 escape sequences
+- Some older terminals may not support OSC52
+
+**Configuration Details**:
+```tmux
+# Enable OSC52 support
+set -g set-clipboard on
+set -ag terminal-features ',*:clipboard'
+
+# Bind copy operations to OSC52 script
+bind -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "~/.config/tmux/scripts/osc52-copy.sh"
+bind -T copy-mode-vi MouseDragEnd1Pane send-keys -X copy-pipe-and-cancel "~/.config/tmux/scripts/osc52-copy.sh"
+```
+
+**Troubleshooting**:
+- If clipboard doesn't work, verify your terminal supports OSC52
+- Check script is executable: `ls -la ~/.config/tmux/scripts/osc52-copy.sh`
+- Test script directly: `echo "test" | ~/.config/tmux/scripts/osc52-copy.sh`
+- For Ghostty, ensure you're using a recent version (has native OSC52 support)
+
 ### Visual Features
 
 **Colors**: 24-bit true color support enabled
@@ -115,7 +163,6 @@ Managed by TPM (Tmux Plugin Manager):
 **Core Plugins**:
 - `tmux-plugins/tpm` - Plugin manager itself
 - `tmux-plugins/tmux-sensible` - Sensible default settings
-- `tmux-plugins/tmux-yank` - Enhanced copy functionality
 - `christoomey/vim-tmux-navigator` - Seamless vim/tmux navigation
 - `catppuccin/tmux` - Base Catppuccin theme
 
