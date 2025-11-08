@@ -109,3 +109,57 @@ The repository includes automated setup scripts:
 - Always run `chezmoi diff` before `chezmoi apply`
 - Use `run_onchange_` prefix for scripts that should re-run after updates
 - Use `run_once_` prefix for one-time setup tasks
+
+## Tmux Clipboard over SSH: Built-in vs Custom Scripts
+
+**Date**: 2025-11-08
+
+**Problem**: Needed clipboard integration in tmux over SSH to copy text to local system clipboard using OSC52.
+
+**What Didn't Work**:
+- **Custom OSC52 script with `copy-pipe-and-cancel`**: Script generated correct OSC52 sequences but they didn't reach the terminal when called via tmux's `copy-pipe`
+- **DCS passthrough wrapper**: Added tmux DCS passthrough (`\033Ptmux;\033...`) to the script, but piped output still didn't reach terminal
+- **Output to /dev/tty**: Attempted to redirect script output to `/dev/tty`, but file descriptor was not available in copy-pipe context
+- **Output to stderr**: Tried sending OSC52 to stderr instead of stdout, still no effect
+
+**What Worked**: **Tmux 3.3+ built-in OSC52 support**
+
+**Solution**:
+```tmux
+# Enable tmux's native clipboard support
+set -g set-clipboard on
+set -ag terminal-features ',*:clipboard'
+
+# Use native copy bindings (no custom script)
+bind -T copy-mode-vi y send-keys -X copy-selection-and-cancel
+bind -T copy-mode-vi MouseDragEnd1Pane send-keys -X copy-selection-and-cancel
+bind -T copy-mode MouseDragEnd1Pane send-keys -X copy-selection-and-cancel
+```
+
+**Key Insights**:
+- Tmux 3.3+ has built-in OSC52 support and handles clipboard automatically when `set-clipboard on` is enabled
+- Custom scripts called via `copy-pipe` cannot output OSC52 sequences to the terminal - their stdout goes to tmux's internal buffer, not to the terminal emulator
+- When using `copy-selection-and-cancel` instead of `copy-pipe-and-cancel`, tmux itself sends the OSC52 sequence directly to the terminal
+- No custom script is needed - tmux handles the OSC52 encoding and passthrough internally
+- The `terminal-features` setting tells tmux that the terminal supports clipboard operations
+
+**Debugging Process**:
+1. Created isolated tests to verify each component:
+   - Terminal OSC52 support (direct printf) - ✓ worked
+   - Tmux DCS passthrough (direct printf in tmux) - ✓ worked
+   - Script output format (correct escape sequences) - ✓ correct
+   - Tmux bindings (calling the script) - ✓ configured
+   - Script via pipe (echo | script) - ✗ failed
+   - Tmux built-in clipboard (`copy-selection-and-cancel`) - ✓ worked
+
+2. Key diagnostic: `tmux load-buffer` (which also uses tmux's internal clipboard) failed, but `copy-selection-and-cancel` succeeded - this revealed that tmux's built-in clipboard integration was working
+
+**Related Files**:
+- `dot_config/tmux/tmux.conf` - Clipboard bindings
+- `dot_config/tmux/scripts/executable_osc52-copy.sh` - No longer needed, can be removed
+
+**Terminal Compatibility**:
+- Ghostty: ✓ Full OSC52 support
+- iTerm2: ✓ Full OSC52 support
+- Alacritty: ✓ Full OSC52 support
+- WezTerm: ✓ Full OSC52 support
