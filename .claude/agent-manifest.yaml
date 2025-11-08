@@ -1,9 +1,9 @@
 version: 1
-updated: 2025-11-05T00:00:00Z
-project_type: dotfiles-sysadmin
+updated: 2025-11-08T11:30:00Z
+project_type: dotfiles-chezmoi
 detection_method: auto
 agents:
-  - name: sysadmin-expert
-    source: infrastructure/sysadmin-expert.md
-    copied: 2025-11-05T00:00:00Z
-notes: "Detected chezmoi dotfiles repository with system configuration management"
+  - name: scott-sysadmin-expert
+    source: scott-sysadmin-expert.md
+    copied: 2025-11-08T11:30:00Z
+notes: "Detected chezmoi dotfiles repository with system configuration files and shell scripts"
