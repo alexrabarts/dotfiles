@@ -21,6 +21,7 @@ bindings = [
 ]
 
 [terminal]
+osc52 = "CopyPaste"
 
 [terminal.shell]
 program = "/bin/zsh"

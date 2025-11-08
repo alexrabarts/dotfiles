@@ -24,3 +24,7 @@ cursor-style-blink = false
 
 # Shell integration
 shell-integration = detect
+
+# Clipboard - enable OSC52 for remote tmux/vim
+clipboard-read = allow
+clipboard-write = allow
