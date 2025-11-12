@@ -1,4 +1,4 @@
-.PHONY: install setup-age check-prerequisites install-packages init-chezmoi install-tmux-plugins help
+.PHONY: install setup-age check-prerequisites install-packages init-chezmoi install-tmux-plugins restart-walker help
 
 # Detect OS
 UNAME_S := $(shell uname -s)
@@ -22,6 +22,7 @@ help:
 	@echo "  make setup-age            - Setup age encryption only"
 	@echo "  make install-packages     - Install all packages"
 	@echo "  make install-tmux-plugins - Install tmux plugins via TPM"
+	@echo "  make restart-walker       - Restart walker app launcher service"
 	@echo "  make check-prerequisites  - Check if required tools are installed"
 	@echo ""
 
@@ -73,6 +74,12 @@ install-tmux-plugins:
 		~/.tmux/plugins/tpm/bin/install_plugins; \
 		echo "✓ Tmux plugins installed"; \
 	fi
+
+restart-walker:
+	@echo "Restarting walker app launcher service..."
+	@pkill walker || true
+	@pkill elephant || true
+	@echo "✓ Walker services stopped. They will restart automatically on next use (Super+Space)."
 
 install: check-prerequisites setup-age install-packages
 	@echo ""
