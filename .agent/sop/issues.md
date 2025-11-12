@@ -2,6 +2,29 @@
 
 Known problems, in-progress work, and blocked items that require attention.
 
+## ✅ RESOLVED: Walker DMenu Mode Breaks After Reboot
+
+### Issue
+Omarchy menu submenus would fail to appear after system reboot. Walker's `--dmenu` mode would get into a bad state.
+
+### Root Cause
+Walker service (walker --gapplication-service) and elephant processes can get into a bad state after reboot, causing dmenu mode to become non-responsive.
+
+### Solution Implemented
+Added automatic walker/elephant restart on Hyprland startup:
+- File: `dot_config/hypr/autostart.conf`
+- Command: `exec-once = pkill walker; pkill elephant`
+- Effect: Ensures clean walker state on every login
+
+### Manual Fix (if needed mid-session)
+```bash
+make restart-walker
+```
+
+### Related Documentation
+- `.agent/sop/learnings.md:167` - Full diagnostic details and investigation
+- `dot_config/hypr/autostart.conf:5` - Permanent fix implementation
+
 ## 🚧 IN PROGRESS: T2 Keyboard Resume After Suspend
 
 ### Issue

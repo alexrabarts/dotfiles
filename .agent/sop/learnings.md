@@ -164,45 +164,81 @@ bind -T copy-mode MouseDragEnd1Pane send-keys -X copy-selection-and-cancel
 - Alacritty: ✓ Full OSC52 support
 - WezTerm: ✓ Full OSC52 support
 
-## Walker Service State Issues
+## Walker DMenu Mode Breaks After Reboot (RESOLVED)
 
-**Date**: 2025-11-12
+**Date**: 2025-11-12 (Resolved same day)
 
-**Problem**: Omarchy menu's "Style" submenu would close immediately without showing options (Theme, Font, Background, etc.).
+**Problem**: Omarchy menu submenus (Style, Learn, Trigger, etc.) would fail to appear after system reboot.
 
-**Root Cause**: Walker's dmenu mode stopped responding correctly when the walker service got into a bad state.
+**Root Cause**: Walker service and elephant processes get into a bad state after reboot, causing dmenu mode to become non-responsive. Not a bug in walker itself - just needs clean restart after boot.
 
 **Symptoms**:
-- Main Omarchy menu worked fine
-- Other submenus (Learn, Trigger, Setup, etc.) worked correctly
-- Style submenu specifically would close immediately upon selection
-- Walker dmenu mode would timeout or return empty results
+- Main Omarchy menu works (uses regular walker, not dmenu)
+- ALL submenus fail after reboot (they use `walker --dmenu`)
+- `make restart-walker` temporarily fixes the issue
+- Problem recurs after next reboot
 
-**Solution**: Restart the walker processes
+**Solution**: Automatic walker/elephant restart on login
+
+Implemented in `dot_config/hypr/autostart.conf`:
 ```bash
-pkill walker
-# Walker will automatically restart when next invoked via omarchy-launch-walker
+# Fix walker dmenu mode by ensuring clean start after boot
+exec-once = pkill walker; pkill elephant
+```
+
+**How it works**:
+1. On Hyprland startup, kills any existing walker/elephant processes
+2. Walker/elephant restart automatically when first invoked (via omarchy-launch-walker)
+3. Fresh start ensures dmenu mode works correctly
+
+**Manual fix** (if issue occurs mid-session):
+```bash
+make restart-walker
 ```
 
 **Key Insights**:
-- Walker runs as a persistent service (`walker --gapplication-service`) for better performance
-- The service can get into a bad state where dmenu mode stops working
-- Both `elephant` and `walker --gapplication-service` processes need to be running for proper operation
-- Killing the walker process allows it to restart cleanly when next needed
-- This is likely a transient issue rather than a configuration problem
-
-**Debugging Process**:
-1. Verified walker and elephant processes were running
-2. Tested menu function directly - returned empty string
-3. Tested walker dmenu mode in isolation - hung/timed out
-4. Restarting walker processes fixed the issue immediately
+- Walker dmenu mode IS functional - it just needs clean start after boot
+- Testing from terminal appears to "hang" because walker waits for GUI interaction (selecting from menu)
+- The walker gapplication-service can persist in bad state across reboots
+- Simple kill/restart on login prevents the issue entirely
 
 **Related Files**:
-- `~/.local/share/omarchy/bin/omarchy-menu` - Menu script that uses walker's dmenu mode
-- `~/.local/share/omarchy/bin/omarchy-launch-walker` - Ensures elephant and walker service are running
-- `~/.config/walker/config.toml` - Walker configuration
+- `dot_config/hypr/autostart.conf:5` - Permanent fix implementation
+- `~/.local/share/omarchy/bin/omarchy-menu:36` - Calls `omarchy-launch-walker --dmenu`
+- `~/.local/share/omarchy/bin/omarchy-launch-walker:13` - Launches walker
+- `Makefile:79` - `make restart-walker` target for manual fix
 
-**If this becomes recurring**:
-- Consider adding a `make restart-walker` target for convenience
-- Investigate walker version or configuration issues
-- Check walker logs for error patterns
+## keyd Removal: Conflicts with Hyprland and Walker (2025-11-12)
+
+**Problem**: 
+- Super+Shift+[ and Super+Shift+] shortcuts stopped working
+- Omarchy menu submenus not appearing when clicked
+
+**Root Causes**:
+1. **Hyprland Key Swap Conflict**: Hyprland was configured to swap Alt/Super keys, but keyd was mapping `leftmeta` (Super) to activate layers. This caused keyd to receive Alt when Super was pressed, breaking the layer activation.
+2. **Walker Service State**: The Omarchy menu (walker) was in a bad state, causing submenus to not appear. This was unrelated to keyd but discovered during troubleshooting.
+
+**Solution**: 
+- **Removed keyd entirely** - No longer needed since Caps Lock is already mapped to Control at the system level
+- **Restarted walker** - Fixed submenu issues with `make restart-walker` or `pkill walker`
+
+**Key Insights**:
+- keyd and compositor-level key remapping (like Hyprland's input config) can conflict
+- When using Hyprland's alt/super swap, keyd needs to map `leftalt` instead of `leftmeta` to activate layers
+- Walker/elephant services can get into bad states and need occasional restarts
+- The `make restart-walker` target (already existed) is the proper fix for walker issues
+- Troubleshooting window rules (nofocus, stayfocused, etc.) was a red herring - the issue was walker state, not Hyprland window rules
+
+**What Didn't Work**:
+- Adding `stayfocused` window rules to override Omarchy defaults
+- Commenting out the `nofocus` rule in Omarchy's `windows.conf`
+- Changing keyd to use `leftalt` instead of `leftmeta`
+- Various keyd macro syntaxes: `macro(C-S-tab)`, `leftcontrol-leftshift-tab`, etc.
+
+**Proper Fix**:
+- Remove keyd configuration (unnecessary with Caps Lock → Control mapping)
+- Use `make restart-walker` when Omarchy menus misbehave
+- Let Hyprland handle all keyboard shortcuts natively
+
+**Related Commits**:
+- `a0e4a86` - Remove keyd configuration
