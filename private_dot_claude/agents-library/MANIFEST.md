@@ -44,4 +44,3 @@ This directory contains ALL agents - both universal and specialized - in a flat 
 - **Jacob** (jacob-music-theory-expert.md) - Music theory and composition
 - **Mark** (mark-geo-aeo-strategist.md) - AI content optimization (GEO/AEO)
 - **Proompty Mc Proomptface** (proompty-mc-proomptface-prompt-engineer.md) - AI prompt engineering and optimization
-- **Guy** (guy-classic-web-dev.md) - Classic web development (jQuery, PHP, FTP deployments); legacy code maintenance and educational anti-patterns
