@@ -1,4 +1,4 @@
-.PHONY: install setup-age check-prerequisites install-packages init-chezmoi install-tmux-plugins restart-walker setup-keyd help
+.PHONY: install setup-age check-prerequisites install-packages init-chezmoi install-tmux-plugins restart-walker setup-keyd setup-fingerprint help
 
 # Detect OS
 UNAME_S := $(shell uname -s)
@@ -21,6 +21,7 @@ help:
 	@echo "  make init-chezmoi         - Initialize chezmoi with this repo as source"
 	@echo "  make setup-age            - Setup age encryption only"
 	@echo "  make setup-keyd           - Setup keyd for macOS-style shortcuts (requires sudo)"
+	@echo "  make setup-fingerprint    - Setup fingerprint reader (ThinkPad T480s)"
 	@echo "  make install-packages     - Install all packages"
 	@echo "  make install-tmux-plugins - Install tmux plugins via TPM"
 	@echo "  make restart-walker       - Restart walker app launcher service"
@@ -98,6 +99,24 @@ ifeq ($(OS),linux)
 	@echo "  Super+T opens new tab, Super+W closes tab (remapped to Ctrl+T/W at kernel level)"
 else
 	@echo "⚠ keyd setup is only needed on Linux (macOS doesn't need it)"
+endif
+
+setup-fingerprint:
+ifeq ($(OS),linux)
+	@echo "Fingerprint Reader Setup (ThinkPad T480s - Synaptics Metallica 06cb:009a)"
+	@echo ""
+	@echo "This requires manual steps due to AUR package installation."
+	@echo "See: .agent/sop/system-files.md#fingerprint-reader-setup"
+	@echo ""
+	@echo "Quick setup:"
+	@echo "  1. yay -S python-validity"
+	@echo "  2. sudo systemctl mask fprintd"
+	@echo "  3. sudo systemctl enable --now python3-validity open-fprintd"
+	@echo "  4. fprintd-enroll $$USER"
+	@echo "  5. sudo sed -i '1i auth    sufficient pam_fprintd.so' /etc/pam.d/sudo"
+	@echo "  6. sudo sed -i '1i auth      sufficient pam_fprintd.so' /etc/pam.d/polkit-1"
+else
+	@echo "⚠ Fingerprint setup is only for Linux"
 endif
 
 install: check-prerequisites setup-age install-packages

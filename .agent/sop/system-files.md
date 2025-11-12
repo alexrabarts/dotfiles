@@ -176,3 +176,73 @@ chezmoi apply
 ```
 
 The helper copies the script to `/usr/local/sbin`, installs the systemd unit, reloads the daemon, enables the service, and ensures `/sys/power/mem_sleep` is set to `s2idle` immediately. Re-run it whenever you change the script or service.
+
+## Fingerprint Reader Setup (ThinkPad T480s)
+
+### Hardware
+- **Device**: Synaptics Metallica MIS Touch Fingerprint Reader (06cb:009a)
+- **Location**: ThinkPad T480s built-in fingerprint reader
+
+### Required Packages
+The standard `fprintd` doesn't support this device. You need:
+- `python-validity` (AUR) - Driver for Synaptics "Match on Host" devices
+- `python-validity` dependencies are automatically installed
+
+### Installation Steps
+
+1. **Install the driver**:
+```bash
+yay -S python-validity
+```
+
+2. **Mask standard fprintd** (to avoid conflicts):
+```bash
+sudo systemctl mask fprintd
+```
+
+3. **Enable services**:
+```bash
+sudo systemctl enable --now python3-validity
+sudo systemctl enable --now open-fprintd
+```
+
+4. **Enroll fingerprint**:
+```bash
+fprintd-enroll $USER
+```
+
+5. **Configure PAM** (for sudo and polkit authentication):
+```bash
+sudo sed -i '1i auth    sufficient pam_fprintd.so' /etc/pam.d/sudo
+sudo sed -i '1i auth      sufficient pam_fprintd.so' /etc/pam.d/polkit-1
+```
+
+6. **Test**:
+```bash
+fprintd-verify $USER
+```
+
+### Verification
+Check enrolled fingerprints:
+```bash
+fprintd-list $USER
+```
+
+Should show:
+```
+found 1 devices
+Device at /net/reactivated/Fprint/Device/0
+Fingerprints for user alex on DBus driver (press):
+ - #0: right-index-finger
+```
+
+### Notes
+- The `python-validity` driver works with "Match on Host" Synaptics devices
+- Do NOT use `libfprint-2-tod1-synatudor-git` - that's for different Synaptics models
+- The Omarchy fingerprint setup script won't work with this device (expects standard fprintd)
+- After setup, fingerprint auth works for sudo and GUI privilege escalation
+
+### Related Files
+- Services: `python3-validity.service`, `open-fprintd.service`
+- PAM config: `/etc/pam.d/sudo`, `/etc/pam.d/polkit-1`
+- Device data: `~/.local/share/python-validity/` (encrypted fingerprint templates)
