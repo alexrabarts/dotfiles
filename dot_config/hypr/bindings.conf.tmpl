@@ -92,7 +92,9 @@ bindd = SUPER ALT, mouse_down, Next window in group, changegroupactive, f
 bindd = SUPER ALT, mouse_up, Previous window in group, changegroupactive, b
 
 # --- Menus & Utilities ---
-bindd = SUPER, SPACE, Launch apps, exec, omarchy-launch-walker
+# Unbind default Omarchy Super+Space before adding our release binding
+unbind = SUPER, SPACE
+bindrd = SUPER, SPACE, Launch apps, exec, omarchy-launch-walker
 bindd = SUPER CTRL, E, Emoji picker, exec, omarchy-launch-walker -m symbols
 bindd = SUPER ALT, SPACE, Omarchy menu, exec, omarchy-menu
 bindd = SUPER, ESCAPE, System menu, exec, omarchy-menu system
