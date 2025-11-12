@@ -163,3 +163,46 @@ bind -T copy-mode MouseDragEnd1Pane send-keys -X copy-selection-and-cancel
 - iTerm2: ✓ Full OSC52 support
 - Alacritty: ✓ Full OSC52 support
 - WezTerm: ✓ Full OSC52 support
+
+## Walker Service State Issues
+
+**Date**: 2025-11-12
+
+**Problem**: Omarchy menu's "Style" submenu would close immediately without showing options (Theme, Font, Background, etc.).
+
+**Root Cause**: Walker's dmenu mode stopped responding correctly when the walker service got into a bad state.
+
+**Symptoms**:
+- Main Omarchy menu worked fine
+- Other submenus (Learn, Trigger, Setup, etc.) worked correctly
+- Style submenu specifically would close immediately upon selection
+- Walker dmenu mode would timeout or return empty results
+
+**Solution**: Restart the walker processes
+```bash
+pkill walker
+# Walker will automatically restart when next invoked via omarchy-launch-walker
+```
+
+**Key Insights**:
+- Walker runs as a persistent service (`walker --gapplication-service`) for better performance
+- The service can get into a bad state where dmenu mode stops working
+- Both `elephant` and `walker --gapplication-service` processes need to be running for proper operation
+- Killing the walker process allows it to restart cleanly when next needed
+- This is likely a transient issue rather than a configuration problem
+
+**Debugging Process**:
+1. Verified walker and elephant processes were running
+2. Tested menu function directly - returned empty string
+3. Tested walker dmenu mode in isolation - hung/timed out
+4. Restarting walker processes fixed the issue immediately
+
+**Related Files**:
+- `~/.local/share/omarchy/bin/omarchy-menu` - Menu script that uses walker's dmenu mode
+- `~/.local/share/omarchy/bin/omarchy-launch-walker` - Ensures elephant and walker service are running
+- `~/.config/walker/config.toml` - Walker configuration
+
+**If this becomes recurring**:
+- Consider adding a `make restart-walker` target for convenience
+- Investigate walker version or configuration issues
+- Check walker logs for error patterns
