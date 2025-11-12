@@ -57,25 +57,41 @@ setup-age: check-prerequisites
 
 install-tmux-plugins:
 	@echo "Installing tmux plugins..."
-	@mkdir -p ~/.tmux/plugins
-	@if [ ! -d ~/.tmux/plugins/tpm ]; then \
-		echo "Installing TPM (Tmux Plugin Manager)..."; \
-		git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm; \
+	@if ! command -v tmux >/dev/null 2>&1; then \
+		echo "⚠ tmux not installed, skipping plugin installation"; \
+		echo "  Install tmux first with: make install-packages"; \
+		echo "  Then run: make install-tmux-plugins"; \
 	else \
-		echo "✓ TPM already installed"; \
+		mkdir -p ~/.tmux/plugins; \
+		if [ ! -d ~/.tmux/plugins/tpm ]; then \
+			echo "Installing TPM (Tmux Plugin Manager)..."; \
+			git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm; \
+		else \
+			echo "✓ TPM already installed"; \
+		fi; \
+		echo "Installing tmux plugins via TPM..."; \
+		~/.tmux/plugins/tpm/bin/install_plugins; \
+		echo "✓ Tmux plugins installed"; \
 	fi
-	@echo "Installing tmux plugins via TPM..."
-	@~/.tmux/plugins/tpm/bin/install_plugins
-	@echo "✓ Tmux plugins installed"
 
-install: check-prerequisites setup-age
+install: check-prerequisites setup-age install-packages
 	@echo ""
+	@# Ensure chezmoi is initialized (symlink exists)
+	@if [ ! -e ~/.local/share/chezmoi ]; then \
+		echo "Initializing chezmoi..."; \
+		mkdir -p ~/.local/share; \
+		ln -sf "$$(pwd)" ~/.local/share/chezmoi; \
+		echo "✓ Chezmoi initialized with source: $$(pwd)"; \
+		echo ""; \
+	fi
 	@echo "Applying dotfiles with chezmoi..."
 	@chezmoi apply -v
 	@echo ""
 	@$(MAKE) install-tmux-plugins
 	@echo ""
-	@echo "✓ Setup complete! Restart your shell or run: source ~/.zshrc"
+	@echo "✓ Full setup complete!"
+	@echo ""
+	@echo "Next step: Restart your shell with: exec zsh"
 
 init-chezmoi:
 	@echo "Initializing chezmoi with this repo as source..."
