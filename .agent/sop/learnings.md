@@ -201,6 +201,7 @@ make restart-walker
 - Testing from terminal appears to "hang" because walker waits for GUI interaction (selecting from menu)
 - The walker gapplication-service can persist in bad state across reboots
 - Simple kill/restart on login prevents the issue entirely
+- **Duplicate processes**: Multiple elephant instances can run simultaneously, causing doubled menu items. Use `make restart-walker` to clean up.
 
 **Related Files**:
 - `dot_config/hypr/autostart.conf:5` - Permanent fix implementation

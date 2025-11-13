@@ -211,11 +211,14 @@ sudo systemctl enable --now open-fprintd
 fprintd-enroll $USER
 ```
 
-5. **Configure PAM** (for sudo and polkit authentication):
+5. **Configure PAM** (for sudo, polkit, and hyprlock authentication):
 ```bash
 sudo sed -i '1i auth    sufficient pam_fprintd.so' /etc/pam.d/sudo
 sudo sed -i '1i auth      sufficient pam_fprintd.so' /etc/pam.d/polkit-1
+sudo sed -i '2i auth      sufficient pam_fprintd.so' /etc/pam.d/system-auth
 ```
+
+The system-auth configuration enables fingerprint for hyprlock and other system authentication.
 
 6. **Test**:
 ```bash
@@ -236,13 +239,38 @@ Fingerprints for user alex on DBus driver (press):
  - #0: right-index-finger
 ```
 
+### Enrollment Tips
+
+**Common issue**: Many `enroll-retry-scan` messages followed by `enroll-failed`
+
+**Solutions**:
+- **Use light touch**: Firm pressure causes failures. Light, consistent touch works best.
+- **Clean sensor**: Wipe fingerprint reader with microfiber cloth
+- **Prepare finger**: Wash and dry hands (slightly moist is ideal, not too dry or wet)
+- **Be consistent**: Use same angle, same part of finger, hold still 1-2 seconds per scan
+- **Enroll different finger**: If one finger keeps failing, try another:
+  ```bash
+  fprintd-enroll -f right-thumb $USER
+  fprintd-enroll -f left-index-finger $USER
+  ```
+- **Delete and retry**: If finger already enrolled, delete first:
+  ```bash
+  fprintd-delete $USER
+  fprintd-enroll $USER
+  ```
+
 ### Notes
 - The `python-validity` driver works with "Match on Host" Synaptics devices
 - Do NOT use `libfprint-2-tod1-synatudor-git` - that's for different Synaptics models
 - The Omarchy fingerprint setup script won't work with this device (expects standard fprintd)
-- After setup, fingerprint auth works for sudo and GUI privilege escalation
+- After setup, fingerprint auth works for:
+  - `sudo` commands
+  - GUI privilege escalation (polkit)
+  - **Hyprlock screen unlock** (via system-auth PAM)
+- Hyprlock config already has `fingerprint:enabled = true` in `~/.config/hypr/hyprlock.conf`
 
 ### Related Files
 - Services: `python3-validity.service`, `open-fprintd.service`
-- PAM config: `/etc/pam.d/sudo`, `/etc/pam.d/polkit-1`
+- PAM config: `/etc/pam.d/sudo`, `/etc/pam.d/polkit-1`, `/etc/pam.d/system-auth`
 - Device data: `~/.local/share/python-validity/` (encrypted fingerprint templates)
+- Hyprlock config: `~/.config/hypr/hyprlock.conf`
